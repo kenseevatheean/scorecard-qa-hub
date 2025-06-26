@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,12 @@ interface ScorecardItem {
   description: string;
   score: 'pass' | 'fail' | 'na' | null;
   subItems?: ScorecardItem[];
+}
+
+interface GeneralItem {
+  id: string;
+  description: string;
+  score: 'pass' | 'fail' | 'na' | null;
 }
 
 const Scorecard: React.FC = () => {
@@ -89,11 +94,11 @@ const Scorecard: React.FC = () => {
     }
   ]);
 
-  const [generalItems, setGeneralItems] = useState([
-    { id: 'correct-ccn', description: 'Correct CCN used?', score: 'pass' as const },
-    { id: 'detailed-note', description: 'Detailed case note left?', score: 'pass' as const },
-    { id: 'correspondence-updated', description: 'All correspondence updated on case note?', score: 'pass' as const },
-    { id: 'follow-up', description: 'Follow up', score: 'pass' as const }
+  const [generalItems, setGeneralItems] = useState<GeneralItem[]>([
+    { id: 'correct-ccn', description: 'Correct CCN used?', score: 'pass' },
+    { id: 'detailed-note', description: 'Detailed case note left?', score: 'pass' },
+    { id: 'correspondence-updated', description: 'All correspondence updated on case note?', score: 'pass' },
+    { id: 'follow-up', description: 'Follow up', score: 'pass' }
   ]);
 
   const handleScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na', isSubItem = false, parentId?: string) => {
