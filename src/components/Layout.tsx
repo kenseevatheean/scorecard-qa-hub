@@ -10,9 +10,11 @@ import { useState } from 'react';
 
 interface LayoutProps {
   children: React.ReactNode;
+  currentPage: string;
+  setCurrentPage: (page: string) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentPage, setCurrentPage }) => {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -90,7 +92,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <Navigation isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Navigation 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
 
         {/* Main Content */}
         <main className="flex-1 p-6">

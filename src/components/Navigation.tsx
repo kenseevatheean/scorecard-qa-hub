@@ -14,9 +14,11 @@ import {
 interface NavigationProps {
   isOpen: boolean;
   onClose: () => void;
+  currentPage: string;
+  setCurrentPage: (page: string) => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ isOpen, onClose }) => {
+const Navigation: React.FC<NavigationProps> = ({ isOpen, onClose, currentPage, setCurrentPage }) => {
   const { user } = useAuth();
 
   const menuItems = [
@@ -30,6 +32,11 @@ const Navigation: React.FC<NavigationProps> = ({ isOpen, onClose }) => {
   const filteredItems = menuItems.filter(item => 
     item.roles.includes(user?.role || '')
   );
+
+  const handleItemClick = (itemId: string) => {
+    setCurrentPage(itemId);
+    onClose(); // Close mobile menu after selection
+  };
 
   return (
     <>
@@ -57,8 +64,13 @@ const Navigation: React.FC<NavigationProps> = ({ isOpen, onClose }) => {
           {filteredItems.map((item) => (
             <Button
               key={item.id}
-              variant="ghost"
-              className="w-full justify-start space-x-3 hover:bg-blue-50"
+              variant={currentPage === item.id ? "default" : "ghost"}
+              className={`w-full justify-start space-x-3 ${
+                currentPage === item.id 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'hover:bg-blue-50'
+              }`}
+              onClick={() => handleItemClick(item.id)}
             >
               <item.icon className="h-5 w-5" />
               <span>{item.label}</span>
