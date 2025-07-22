@@ -148,5 +148,116 @@ export const departmentScorecards: DepartmentScorecard[] = [
         }
       ]
     }
+  },
+  {
+    id: 'customer-support-call',
+    name: 'Customer Support - Call',
+    sections: {
+      mandatory: [
+        {
+          id: 'dpa-confirmation',
+          category: 'Mandatory',
+          description: 'Did the advisor confirm full DPA (Three separate parts of information) and explain that call would be recorded?',
+          score: null
+        },
+        {
+          id: 'query-identified-call',
+          category: 'Mandatory',
+          description: 'Did the advisor identify and answer the query correctly?',
+          score: null
+        },
+        {
+          id: 'address-queries-call',
+          category: 'Mandatory',
+          description: 'Did the advisor address all queries and provide additional information where necessary?',
+          score: null
+        },
+        {
+          id: 'misleading-info-call',
+          category: 'Mandatory',
+          description: 'Was any misleading information provided?',
+          score: null
+        },
+        {
+          id: 'questioning-skills-call',
+          category: 'Mandatory',
+          description: 'Did the advisor use effective questioning skills where necessary?',
+          score: null
+        },
+        {
+          id: 'soft-skills',
+          category: 'Mandatory',
+          description: 'Did the advisor demonstrate good soft skills? (active listening, empathy, patience...)',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'contact-details-correct',
+          description: 'Are the contact details correct?',
+          score: null
+        },
+        {
+          id: 'query-type-call',
+          description: 'Did the advisor note the correct type of query?',
+          score: null
+        },
+        {
+          id: 'avoid-interrupting',
+          description: 'Did the advisor avoid interrupting or talking over the caller?',
+          score: null
+        },
+        {
+          id: 'appropriate-language',
+          description: 'Did the advisor use appropriate language, avoiding abbreviations (IP, PIF, CIC, and NOID...)?',
+          score: null
+        },
+        {
+          id: 'inform-hold-transfer',
+          description: 'Did the advisor inform the debtor before he/she is put on hold or transferred?',
+          score: null
+        },
+        {
+          id: 'ask-for-help',
+          description: 'Did the advisor ask for help from seniors/managers if unsure about process/solution?',
+          score: null
+        },
+        {
+          id: 'correct-cnc-call',
+          description: 'Correct CNC used?',
+          score: null
+        },
+        {
+          id: 'detailed-case-note-call',
+          description: 'Detailed case note left?',
+          score: null
+        },
+        {
+          id: 'case-note-reflect',
+          description: 'Case note reflect conversation?',
+          score: null
+        },
+        {
+          id: 'correspondences-updated-call',
+          description: 'All correspondences updated on case note?',
+          score: null
+        },
+        {
+          id: 'eod-process-call',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-call',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-call',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
   }
 ];
