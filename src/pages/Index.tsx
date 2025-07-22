@@ -5,12 +5,22 @@ import Layout from '@/components/Layout';
 import LoginForm from '@/components/LoginForm';
 import Dashboard from '@/components/Dashboard';
 import Scorecard from '@/components/Scorecard';
+import ScorecardSelection from '@/components/ScorecardSelection';
 import Disputes from '@/components/Disputes';
 import { useState } from 'react';
 
 const Index = () => {
   const { user, isLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [showScorecardForm, setShowScorecardForm] = useState(false);
+
+  const handleStartAudit = (department: string, employee: string) => {
+    setSelectedDepartment(department);
+    setSelectedEmployee(employee);
+    setShowScorecardForm(true);
+  };
 
   if (isLoading) {
     return (
@@ -32,7 +42,18 @@ const Index = () => {
       case 'dashboard':
         return user.role !== 'employee' ? <Dashboard /> : <Scorecard />;
       case 'scorecards':
-        return <Scorecard />;
+        if (user.role === 'employee') {
+          return <Scorecard />;
+        }
+        return showScorecardForm ? (
+          <Scorecard 
+            preSelectedDepartment={selectedDepartment}
+            preSelectedEmployee={selectedEmployee}
+            onBack={() => setShowScorecardForm(false)}
+          />
+        ) : (
+          <ScorecardSelection onStartAudit={handleStartAudit} />
+        );
       case 'disputes':
         return <Disputes />;
       case 'reports':

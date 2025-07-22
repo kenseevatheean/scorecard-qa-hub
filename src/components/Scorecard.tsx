@@ -7,16 +7,28 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { User, Calendar, AlertTriangle, CheckCircle, X, Building2 } from 'lucide-react';
+import { User, Calendar, AlertTriangle, CheckCircle, X, Building2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { departmentScorecards } from '@/data/scorecardData';
 import { ScorecardItem, GeneralItem } from '@/types/scorecard';
 
-const Scorecard: React.FC = () => {
+interface ScorecardProps {
+  preSelectedDepartment?: string;
+  preSelectedEmployee?: string;
+  onBack?: () => void;
+}
+
+const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelectedEmployee, onBack }) => {
   const { user } = useAuth();
-  const [selectedDepartment, setSelectedDepartment] = useState(departmentScorecards[0].id);
-  const [employeeName, setEmployeeName] = useState('Jane Doe');
+  
+  // Initialize with preselected values or defaults
+  const defaultDepartmentId = preSelectedDepartment 
+    ? departmentScorecards.find(dept => dept.name === preSelectedDepartment)?.id || departmentScorecards[0].id
+    : departmentScorecards[0].id;
+    
+  const [selectedDepartment, setSelectedDepartment] = useState(defaultDepartmentId);
+  const [employeeName, setEmployeeName] = useState(preSelectedEmployee || 'Jane Doe');
   const [caseReference, setCaseReference] = useState('IVAT23456');
   const [auditDate, setAuditDate] = useState('24/08/2025');
   const [auditorName, setAuditorName] = useState('John Smith');
@@ -132,9 +144,17 @@ const Scorecard: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Scorecard</h1>
-          <p className="text-gray-600">Quality assurance evaluation form</p>
+        <div className="flex items-center space-x-4">
+          {onBack && (
+            <Button variant="outline" onClick={onBack} className="flex items-center space-x-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back</span>
+            </Button>
+          )}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Quality Scorecard</h1>
+            <p className="text-gray-600">Quality assurance evaluation form</p>
+          </div>
         </div>
         {canEdit && (
           <Button 
