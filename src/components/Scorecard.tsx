@@ -7,26 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { User, Calendar, AlertTriangle, CheckCircle, X } from 'lucide-react';
+import { User, Calendar, AlertTriangle, CheckCircle, X, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-
-interface ScorecardItem {
-  id: string;
-  category: string;
-  description: string;
-  score: 'pass' | 'fail' | 'na' | null;
-  subItems?: ScorecardItem[];
-}
-
-interface GeneralItem {
-  id: string;
-  description: string;
-  score: 'pass' | 'fail' | 'na' | null;
-}
+import { departmentScorecards } from '@/data/scorecardData';
+import { ScorecardItem, GeneralItem } from '@/types/scorecard';
 
 const Scorecard: React.FC = () => {
   const { user } = useAuth();
+  const [selectedDepartment, setSelectedDepartment] = useState(departmentScorecards[0].id);
   const [employeeName, setEmployeeName] = useState('Jane Doe');
   const [caseReference, setCaseReference] = useState('IVAT23456');
   const [auditDate, setAuditDate] = useState('24/08/2025');
@@ -39,92 +28,53 @@ const Scorecard: React.FC = () => {
   const [negatives, setNegatives] = useState('');
   const [remarks, setRemarks] = useState('');
   
-  const [scorecardData, setScorecardData] = useState<ScorecardItem[]>([
-    {
-      id: 'income-benefits-freq',
-      category: 'Income',
-      description: 'Income / Benefits frequency checked',
-      score: 'pass'
-    },
-    {
-      id: 'average-income',
-      category: 'Income',
-      description: 'Average income calculated correctly',
-      score: 'pass'
-    },
-    {
-      id: 'tax-return',
-      category: 'Income',
-      description: 'Check Tax Return, P&L (if self-employed)',
-      score: 'pass'
-    },
-    {
-      id: 'wage-slips',
-      category: 'Income',
-      description: 'Wage slips requested if income >10% of last review?',
-      score: 'pass'
-    },
-    {
-      id: 'benefits-freq',
-      category: 'Income',
-      description: 'Benefits frequency checked',
-      score: 'pass',
-      subItems: [
-        {
-          id: 'benefits-freq-sub',
-          category: 'Income',
-          description: 'Check regular overtime and bonuses',
-          score: 'pass'
-        }
-      ]
-    },
-    {
-      id: 'ytd-figure',
-      category: 'Income',
-      description: 'Check YTD figure for previous additional income',
-      score: 'pass',
-      subItems: [
-        {
-          id: 'unusual-tax-codes',
-          category: 'Income',
-          description: 'Check for unusual tax codes (K, W, M, X)',
-          score: 'pass'
-        }
-      ]
-    }
-  ]);
+  // State for each department's scorecard data
+  const [departmentData, setDepartmentData] = useState(() => {
+    const initialData: Record<string, { mandatory: ScorecardItem[], general: GeneralItem[] }> = {};
+    departmentScorecards.forEach(dept => {
+      initialData[dept.id] = {
+        mandatory: JSON.parse(JSON.stringify(dept.sections.mandatory)),
+        general: JSON.parse(JSON.stringify(dept.sections.general))
+      };
+    });
+    return initialData;
+  });
 
-  const [generalItems, setGeneralItems] = useState<GeneralItem[]>([
-    { id: 'correct-ccn', description: 'Correct CCN used?', score: 'pass' },
-    { id: 'detailed-note', description: 'Detailed case note left?', score: 'pass' },
-    { id: 'correspondence-updated', description: 'All correspondence updated on case note?', score: 'pass' },
-    { id: 'follow-up', description: 'Follow up', score: 'pass' }
-  ]);
+  const currentDepartment = departmentScorecards.find(dept => dept.id === selectedDepartment);
+  const currentData = departmentData[selectedDepartment];
 
   const handleScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na', isSubItem = false, parentId?: string) => {
-    if (isSubItem && parentId) {
-      setScorecardData(prev => prev.map(item => {
-        if (item.id === parentId && item.subItems) {
-          return {
-            ...item,
-            subItems: item.subItems.map(subItem => 
-              subItem.id === itemId ? { ...subItem, score: newScore } : subItem
-            )
-          };
-        }
-        return item;
-      }));
-    } else {
-      setScorecardData(prev => prev.map(item => 
-        item.id === itemId ? { ...item, score: newScore } : item
-      ));
-    }
+    setDepartmentData(prev => ({
+      ...prev,
+      [selectedDepartment]: {
+        ...prev[selectedDepartment],
+        mandatory: prev[selectedDepartment].mandatory.map(item => {
+          if (isSubItem && parentId && item.id === parentId && item.subItems) {
+            return {
+              ...item,
+              subItems: item.subItems.map(subItem => 
+                subItem.id === itemId ? { ...subItem, score: newScore } : subItem
+              )
+            };
+          } else if (!isSubItem && item.id === itemId) {
+            return { ...item, score: newScore };
+          }
+          return item;
+        })
+      }
+    }));
   };
 
   const handleGeneralScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na') => {
-    setGeneralItems(prev => prev.map(item => 
-      item.id === itemId ? { ...item, score: newScore } : item
-    ));
+    setDepartmentData(prev => ({
+      ...prev,
+      [selectedDepartment]: {
+        ...prev[selectedDepartment],
+        general: prev[selectedDepartment].general.map(item => 
+          item.id === itemId ? { ...item, score: newScore } : item
+        )
+      }
+    }));
   };
 
   const getScoreButtonClass = (score: 'pass' | 'fail' | 'na', currentScore: 'pass' | 'fail' | 'na' | null) => {
@@ -144,8 +94,20 @@ const Scorecard: React.FC = () => {
   };
 
   const handleClearData = () => {
-    setScorecardData(prev => prev.map(item => ({ ...item, score: null })));
-    setGeneralItems(prev => prev.map(item => ({ ...item, score: null })));
+    setDepartmentData(prev => {
+      const newData = { ...prev };
+      Object.keys(newData).forEach(deptId => {
+        newData[deptId] = {
+          mandatory: newData[deptId].mandatory.map(item => ({ 
+            ...item, 
+            score: null,
+            subItems: item.subItems?.map(sub => ({ ...sub, score: null }))
+          })),
+          general: newData[deptId].general.map(item => ({ ...item, score: null }))
+        };
+      });
+      return newData;
+    });
     setGeneralComments('');
     setSummaryQuery('');
     setPositives('');
@@ -160,11 +122,11 @@ const Scorecard: React.FC = () => {
   const handleSave = () => {
     toast({
       title: "Scorecard Saved",
-      description: "The scorecard has been saved successfully.",
+      description: `The ${currentDepartment?.name} scorecard has been saved successfully.`,
     });
   };
 
-  const canEdit = user?.role === 'qa_officer';
+  const canEdit = user?.role === 'qa_officer' || user?.role === 'manager';
 
   return (
     <div className="space-y-6">
@@ -186,11 +148,41 @@ const Scorecard: React.FC = () => {
         )}
       </div>
 
+      {/* Department Selection - Only for QA Officers and Managers */}
+      {(user?.role === 'qa_officer' || user?.role === 'manager') && (
+        <Card>
+          <CardHeader className="flex flex-row items-center space-x-2">
+            <Building2 className="h-5 w-5 text-purple-600" />
+            <CardTitle>Department Selection</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="department-select">Select Department</Label>
+              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                <SelectTrigger id="department-select" className="w-full md:w-80">
+                  <SelectValue placeholder="Select a department" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border shadow-lg z-50">
+                  {departmentScorecards.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Employee Information */}
       <Card>
         <CardHeader className="flex flex-row items-center space-x-2">
           <User className="h-5 w-5 text-blue-600" />
           <CardTitle>Employee Information</CardTitle>
+          <Badge variant="outline" className="ml-auto">
+            {currentDepartment?.name}
+          </Badge>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -241,16 +233,8 @@ const Scorecard: React.FC = () => {
           <AlertTriangle className="h-5 w-5 text-red-600" />
           <CardTitle className="text-white bg-red-600 px-3 py-1 rounded">Mandatory Sections</CardTitle>
         </CardHeader>
-      </Card>
-
-      {/* Income Section */}
-      <Card>
-        <CardHeader className="flex flex-row items-center space-x-2">
-          <CheckCircle className="h-5 w-5 text-blue-600" />
-          <CardTitle>Income</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-4">
-          {scorecardData.map((item) => (
+          {currentData?.mandatory.map((item) => (
             <div key={item.id} className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm font-medium flex-1">{item.description}</span>
@@ -319,32 +303,44 @@ const Scorecard: React.FC = () => {
           <CardTitle>General</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {generalItems.map((item) => (
-            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium flex-1">{item.description}</span>
-              <div className="flex space-x-2 ml-4">
-                <button
-                  className={getScoreButtonClass('pass', item.score)}
-                  onClick={() => canEdit && handleGeneralScoreChange(item.id, 'pass')}
-                  disabled={!canEdit}
-                >
-                  Pass
-                </button>
-                <button
-                  className={getScoreButtonClass('fail', item.score)}
-                  onClick={() => canEdit && handleGeneralScoreChange(item.id, 'fail')}
-                  disabled={!canEdit}
-                >
-                  Fail
-                </button>
-                <button
-                  className={getScoreButtonClass('na', item.score)}
-                  onClick={() => canEdit && handleGeneralScoreChange(item.id, 'na')}
-                  disabled={!canEdit}
-                >
-                  N/A
-                </button>
+          {currentData?.general.map((item) => (
+            <div key={item.id} className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium flex-1">{item.description}</span>
+                <div className="flex space-x-2 ml-4">
+                  <button
+                    className={getScoreButtonClass('pass', item.score)}
+                    onClick={() => canEdit && handleGeneralScoreChange(item.id, 'pass')}
+                    disabled={!canEdit}
+                  >
+                    Pass
+                  </button>
+                  <button
+                    className={getScoreButtonClass('fail', item.score)}
+                    onClick={() => canEdit && handleGeneralScoreChange(item.id, 'fail')}
+                    disabled={!canEdit}
+                  >
+                    Fail
+                  </button>
+                  <button
+                    className={getScoreButtonClass('na', item.score)}
+                    onClick={() => canEdit && handleGeneralScoreChange(item.id, 'na')}
+                    disabled={!canEdit}
+                  >
+                    N/A
+                  </button>
+                </div>
               </div>
+              
+              {item.subItems && (
+                <div className="ml-6 space-y-2">
+                  {item.subItems.map((subText, index) => (
+                    <div key={index} className="text-sm text-gray-600 p-2 bg-blue-50 rounded">
+                      └ {subText}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
           
