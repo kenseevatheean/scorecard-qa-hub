@@ -241,24 +241,16 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                 disabled={!canEdit}
               />
             </div>
-            {/* Department Selection - moved here and only for QA Officers and Managers */}
-            {(user?.role === 'qa_officer' || user?.role === 'manager') && (
-              <div className="space-y-2">
-                <Label htmlFor="department-select">Department</Label>
-                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                  <SelectTrigger id="department-select" className="w-full">
-                    <SelectValue placeholder="Select a department" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border shadow-lg z-50">
-                    {departmentScorecards.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            {/* Department field - read-only, shows employee's actual department */}
+            <div className="space-y-2">
+              <Label htmlFor="employee-department">Department</Label>
+              <Input
+                id="employee-department"
+                value={currentDepartment?.name || ''}
+                disabled={true}
+                className="bg-gray-50"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
