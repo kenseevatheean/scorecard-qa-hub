@@ -168,32 +168,30 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         )}
       </div>
 
-      {/* Department Selection - Only for QA Officers and Managers */}
-      {(user?.role === 'qa_officer' || user?.role === 'manager') && (
-        <Card>
-          <CardHeader className="flex flex-row items-center space-x-2">
-            <Building2 className="h-5 w-5 text-purple-600" />
-            <CardTitle>Department Selection</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="department-select">Select Department</Label>
-              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                <SelectTrigger id="department-select" className="w-full md:w-80">
-                  <SelectValue placeholder="Select a department" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border shadow-lg z-50">
-                  {departmentScorecards.map((dept) => (
-                    <SelectItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Scorecard Selection */}
+      <Card>
+        <CardHeader className="flex flex-row items-center space-x-2">
+          <Building2 className="h-5 w-5 text-purple-600" />
+          <CardTitle>Scorecard Selection</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="scorecard-select">Select Scorecard</Label>
+            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+              <SelectTrigger id="scorecard-select" className="w-full md:w-80">
+                <SelectValue placeholder="Select a scorecard" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border shadow-lg z-50">
+                {departmentScorecards.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Employee Information */}
       <Card>
@@ -243,6 +241,24 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                 disabled={!canEdit}
               />
             </div>
+            {/* Department Selection - moved here and only for QA Officers and Managers */}
+            {(user?.role === 'qa_officer' || user?.role === 'manager') && (
+              <div className="space-y-2">
+                <Label htmlFor="department-select">Department</Label>
+                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                  <SelectTrigger id="department-select" className="w-full">
+                    <SelectValue placeholder="Select a department" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border shadow-lg z-50">
+                    {departmentScorecards.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
