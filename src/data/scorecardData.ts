@@ -397,5 +397,504 @@ export const departmentScorecards: DepartmentScorecard[] = [
         }
       ]
     }
+  },
+  {
+    id: 'supervision-rx1-rx4',
+    name: 'Supervision Case Audit - RX1 and RX4',
+    sections: {
+      mandatory: [
+        {
+          id: 'restriction-tackled-sla',
+          category: 'Mandatory',
+          description: 'Was the restriction tackled within SLA?',
+          score: null
+        },
+        {
+          id: 'form-filled-sent-lr',
+          category: 'Mandatory',
+          description: 'Was the form filled correctly and sent to LR?',
+          score: null
+        },
+        {
+          id: 'proposal-check-supervision',
+          category: 'Mandatory',
+          description: 'Proposal Check',
+          score: null
+        },
+        {
+          id: 'advisor-raise-ip-supervision',
+          category: 'Mandatory',
+          description: 'Did the advisor raise an IP if applicable?',
+          score: null
+        },
+        {
+          id: 'requisition-tackled-sla',
+          category: 'Mandatory',
+          description: 'Was the requisition tackled correctly and within SLA?',
+          score: null
+        },
+        {
+          id: 'customer-consent-vary-terms',
+          category: 'Mandatory',
+          description: 'Did the customer provide consent to vary the terms of the IVA if applicable?',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-supervision-rx',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Detailed case note left?',
+            'All correspondences updated on case note?',
+            'Were the correspondences docuwared correctly?'
+          ]
+        },
+        {
+          id: 'eod-process-supervision-rx',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-supervision-rx',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-supervision-rx',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
+  },
+  {
+    id: 'supervision-mods',
+    name: 'Supervision Case Audit - MODS',
+    sections: {
+      mandatory: [
+        {
+          id: 'modification-correctly-identified',
+          category: 'Mandatory',
+          description: 'Was the modification correctly identified?',
+          score: null
+        },
+        {
+          id: 'advisor-raise-ip-query-mods',
+          category: 'Mandatory',
+          description: 'Did the advisor raise an IP query if applicable?',
+          score: null
+        },
+        {
+          id: 'case-passed-financial-reviews',
+          category: 'Mandatory',
+          description: 'Did the advisor pass the case to Financial Reviews if applicable?',
+          score: null
+        },
+        {
+          id: 'evidence-requested-saved',
+          category: 'Mandatory',
+          description: 'Evidence requested and saved on file',
+          score: null
+        },
+        {
+          id: 'customer-consent-vary-terms-mods',
+          category: 'Mandatory',
+          description: 'Did the customer provide consent to vary the terms of the IVA if applicable?',
+          score: null
+        },
+        {
+          id: 'breach-issued-applicable',
+          category: 'Mandatory',
+          description: 'Breach Issued if applicable',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-supervision-mods',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Detailed case note left?',
+            'All correspondences updated on case note?',
+            'Were the correspondences docuwared correctly?'
+          ]
+        },
+        {
+          id: 'eod-process-supervision-mods',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-supervision-mods',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-supervision-mods',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
+  },
+  {
+    id: 'supervision-annual-report',
+    name: 'Supervision Case Audit - Annual Report',
+    sections: {
+      mandatory: [
+        {
+          id: 'exception-worked-sla',
+          category: 'Mandatory',
+          description: 'Was the exception worked within SLA (2 months)?',
+          score: null
+        },
+        {
+          id: 'coa-updated-passed-bit',
+          category: 'Mandatory',
+          description: 'Was the COA updated correctly and passed to BIT?',
+          score: null
+        },
+        {
+          id: 'details-checked-changes-made',
+          category: 'Mandatory',
+          description: 'Were all details checked correctly and changes made accordingly?',
+          score: null
+        },
+        {
+          id: 'annual-report-sent',
+          category: 'Mandatory',
+          description: 'Was the annual report correctly sent to debtor & creditors?',
+          score: null
+        },
+        {
+          id: 'advisor-left-case-note',
+          category: 'Mandatory',
+          description: 'Did the advisor leave a case note?',
+          score: null
+        }
+      ],
+      general: []
+    }
+  },
+  {
+    id: 'asset-full-final',
+    name: 'Asset Case Audit - Full & Final',
+    sections: {
+      mandatory: [
+        {
+          id: 'third-party-documents-requested',
+          category: 'Mandatory',
+          description: 'Third party documents requested (Proof of ID, BS & offer letter)',
+          score: null
+        },
+        {
+          id: 'evidence-on-file-asset',
+          category: 'Mandatory',
+          description: 'Evidence on File',
+          score: null
+        },
+        {
+          id: 'ip-query-raised-asset',
+          category: 'Mandatory',
+          description: 'IP Query raised',
+          score: null
+        },
+        {
+          id: 'case-referred-variation',
+          category: 'Mandatory',
+          description: 'Was case referred to Variation?',
+          score: null
+        },
+        {
+          id: 'ic-tab-updated-asset',
+          category: 'Mandatory',
+          description: 'Was the IC Tab updated?',
+          score: null
+        },
+        {
+          id: 'receipt-funds-closure-stage',
+          category: 'Mandatory',
+          description: 'Receipt of Funds - Case moved to closure stage & funds allocated on COA',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-asset-full-final',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Correct CNC used?',
+            'Detailed case note left?',
+            'Case note reflect conversation?',
+            'All correspondences updated on case note?'
+          ]
+        },
+        {
+          id: 'eod-process-asset-full-final',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-asset-full-final',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-asset-full-final',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
+  },
+  {
+    id: 'asset-month-54',
+    name: 'Asset Case Audit - Month 54',
+    sections: {
+      mandatory: [
+        {
+          id: 'property-included-excluded',
+          category: 'Mandatory',
+          description: 'Property - Included or Excluded',
+          score: null
+        },
+        {
+          id: 'case-passed-supervision-breach',
+          category: 'Mandatory',
+          description: 'Was case passed to Supervision to issue Breach Letter - Non Compliance of Obligation towards property',
+          score: null
+        },
+        {
+          id: 'breach-expired-cases-ip-query',
+          category: 'Mandatory',
+          description: 'Breach Cases & Expired Cases - IP Query',
+          score: null
+        },
+        {
+          id: 'property-review-complete',
+          category: 'Mandatory',
+          description: 'Property Review Complete - case passed to Select Partnership / 3rd party',
+          score: null
+        },
+        {
+          id: 'ip-query-raised-month-54',
+          category: 'Mandatory',
+          description: 'IP Query raised?',
+          score: null
+        },
+        {
+          id: 'options-letter-debtor',
+          category: 'Mandatory',
+          description: 'Options Letter to Debtor',
+          score: null
+        },
+        {
+          id: 'evidence-remortgage-requested',
+          category: 'Mandatory',
+          description: 'Evidence of remortgage requested, if applicable',
+          score: null
+        },
+        {
+          id: 'extension-letter-sent',
+          category: 'Mandatory',
+          description: 'Extension Letter sent to debtor',
+          score: null
+        },
+        {
+          id: 'receipt-funds-variation',
+          category: 'Mandatory',
+          description: 'Receipt of Funds - Case moved to respective stage & Funds allocated on COA, following variation',
+          score: null
+        },
+        {
+          id: 'ic-tab-assignment-amended',
+          category: 'Mandatory',
+          description: 'IC Tab, Assignment Stage and Assignment Details Amended',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-asset-month-54',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Correct CNC used?',
+            'Detailed case note left?',
+            'Case note reflect conversation?',
+            'All correspondences updated on case note?'
+          ]
+        },
+        {
+          id: 'eod-process-asset-month-54',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-asset-month-54',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-asset-month-54',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
+  },
+  {
+    id: 'asset-other-asset',
+    name: 'Asset Case Audit - Other Asset',
+    sections: {
+      mandatory: [
+        {
+          id: 'letter-authority-external-parties',
+          category: 'Mandatory',
+          description: 'Letter of Authority - External Parties dealing with the case (where applicable)',
+          score: null
+        },
+        {
+          id: 'ip-query-raised-other-asset',
+          category: 'Mandatory',
+          description: 'IP query raised',
+          score: null
+        },
+        {
+          id: 'evidence-on-file-other-asset',
+          category: 'Mandatory',
+          description: 'Evidence on File',
+          score: null
+        },
+        {
+          id: 'pif-saved-note-docuware',
+          category: 'Mandatory',
+          description: 'PIF - saved on note & Docuware',
+          score: null
+        },
+        {
+          id: 'receipt-funds-respective-stage',
+          category: 'Mandatory',
+          description: 'Receipt of Funds - Cases moved to respective stage & Funds allocated on COA',
+          score: null
+        },
+        {
+          id: 'ic-tab-updated-other-asset',
+          category: 'Mandatory',
+          description: 'Was the IC Tab updated?',
+          score: null
+        },
+        {
+          id: 'supervision-team-notified-breach',
+          category: 'Mandatory',
+          description: 'Was Supervision Team notified for Breach where funds have already been used or debtor not complied with T&Cs?',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-asset-other',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Correct CNC used?',
+            'Detailed case note left?',
+            'Case note reflect conversation?',
+            'All correspondences updated on case note?'
+          ]
+        },
+        {
+          id: 'eod-process-asset-other',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-asset-other',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-asset-other',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
+  },
+  {
+    id: 'asset-property-sale',
+    name: 'Asset Case Audit - Property Sale',
+    sections: {
+      mandatory: [
+        {
+          id: 'letter-authority-external-parties-sale',
+          category: 'Mandatory',
+          description: 'Letter of Authority - External Parties dealing with the case',
+          score: null
+        },
+        {
+          id: 'ip-query-raised-property-sale',
+          category: 'Mandatory',
+          description: 'IP query raised, where applicable',
+          score: null
+        },
+        {
+          id: 'evidence-on-file-property-sale',
+          category: 'Mandatory',
+          description: 'Evidence on File',
+          score: null
+        },
+        {
+          id: 'pif-saved-note-docuware-sale',
+          category: 'Mandatory',
+          description: 'PIF - saved on note & Docuware',
+          score: null
+        },
+        {
+          id: 'receipt-funds-respective-stage-sale',
+          category: 'Mandatory',
+          description: 'Receipt of Funds - Cases moved to respective stage & Funds allocated on COA',
+          score: null
+        },
+        {
+          id: 'supervision-team-notified-breach-sale',
+          category: 'Mandatory',
+          description: 'Was Supervision Team notified for Breach where funds have already been used or debtor not complied with T&Cs?',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-asset-property-sale',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Correct CNC used?',
+            'Detailed case note left?',
+            'Case note reflect conversation?',
+            'All correspondences updated on case note?'
+          ]
+        },
+        {
+          id: 'eod-process-asset-property-sale',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-asset-property-sale',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-asset-property-sale',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
   }
 ];
