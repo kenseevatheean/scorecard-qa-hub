@@ -22,9 +22,20 @@ interface ScorecardProps {
 const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelectedEmployee, onBack }) => {
   const { user } = useAuth();
   
+  // Map department names to scorecard IDs
+  const getDepartmentScorecard = (departmentName: string) => {
+    const mappings: { [key: string]: string } = {
+      'Customer Support': 'customer-support-call',
+      'Customer Relations': 'customer-relations-email', 
+      'Financial Reviews': 'financial-reviews'
+    };
+    
+    return mappings[departmentName] || departmentScorecards[0].id;
+  };
+  
   // Initialize with preselected values or defaults
   const defaultDepartmentId = preSelectedDepartment 
-    ? departmentScorecards.find(dept => dept.name === preSelectedDepartment)?.id || departmentScorecards[0].id
+    ? getDepartmentScorecard(preSelectedDepartment)
     : departmentScorecards[0].id;
     
   const [selectedDepartment, setSelectedDepartment] = useState(defaultDepartmentId);
