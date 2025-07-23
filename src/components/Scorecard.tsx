@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { departmentScorecards } from '@/data/scorecardData';
 import { ScorecardItem, GeneralItem } from '@/types/scorecard';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ScorecardProps {
   preSelectedDepartment?: string;
@@ -44,6 +45,8 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   const [auditDate, setAuditDate] = useState('24/08/2025');
   const [auditorName, setAuditorName] = useState('John Smith');
   const [generalComments, setGeneralComments] = useState('');
+  const [employees, setEmployees] = useState<Array<{name: string, department: string}>>([]);
+  const [actualEmployeeDepartment, setActualEmployeeDepartment] = useState<string>('');
   
   // Auditor's Comments
   const [summaryQuery, setSummaryQuery] = useState('');
@@ -62,6 +65,37 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     });
     return initialData;
   });
+
+  // Fetch employees from database
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const { data: employeeData, error } = await supabase
+          .from('employees')
+          .select('name, department')
+          .eq('status', 'active');
+
+        if (error) {
+          console.error('Error fetching employees:', error);
+          return;
+        }
+
+        if (employeeData) {
+          setEmployees(employeeData);
+          
+          // Find the current employee's actual department
+          const currentEmployee = employeeData.find(emp => emp.name === employeeName);
+          if (currentEmployee) {
+            setActualEmployeeDepartment(currentEmployee.department);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+
+    fetchEmployees();
+  }, [employeeName]);
 
   const currentDepartment = departmentScorecards.find(dept => dept.id === selectedDepartment);
   const currentData = departmentData[selectedDepartment];
@@ -257,7 +291,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
               <Label htmlFor="employee-department">Department</Label>
               <Input
                 id="employee-department"
-                value={currentDepartment?.name || ''}
+                value={actualEmployeeDepartment || ''}
                 disabled={true}
                 className="bg-gray-50"
               />
