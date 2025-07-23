@@ -262,7 +262,7 @@ export const departmentScorecards: DepartmentScorecard[] = [
   },
   {
     id: 'closures',
-    name: 'Closures',
+    name: 'Closures - Case Audit',
     sections: {
       mandatory: [
         {
