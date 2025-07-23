@@ -74,7 +74,7 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Start Quality Audit</h1>
-        <p className="text-gray-600">Select an area/category and employee to begin the quality assessment</p>
+        <p className="text-gray-600">Select a department and employee to begin the quality assessment</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -83,18 +83,18 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-blue-600" />
-              <span>Select Area/Category</span>
+              <span>Select Department</span>
             </CardTitle>
             <CardDescription>
-              Choose the area/category you want to audit
+              Choose the department you want to audit
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="department">Area/Category</Label>
+              <Label htmlFor="department">Department</Label>
               <Select value={selectedDepartment} onValueChange={setSelectedDepartment} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder={loading ? "Loading areas..." : "Choose an area/category..."} />
+                  <SelectValue placeholder={loading ? "Loading departments..." : "Choose a department..."} />
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map((dept) => (
@@ -186,7 +186,7 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
                 <div>
                   <h3 className="font-medium text-green-900">Ready to Start Audit</h3>
                   <p className="text-sm text-green-700">
-                    Department: <strong>{selectedDepartment}</strong> | Employee: <strong>{selectedEmployee}</strong>
+                    Area/Category: <strong>{selectedDepartment}</strong> | Employee: <strong>{selectedEmployee}</strong>
                   </p>
                 </div>
               </div>
@@ -205,9 +205,9 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
         <Card className="border-gray-200">
           <CardContent className="pt-6 text-center">
             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-            <h3 className="font-medium text-gray-600 mb-2">Select Area/Category to Continue</h3>
+            <h3 className="font-medium text-gray-600 mb-2">Select Department to Continue</h3>
             <p className="text-sm text-gray-500">
-              Choose an area/category to see available employees and start the audit process
+              Choose a department to see available employees and start the audit process
             </p>
           </CardContent>
         </Card>
