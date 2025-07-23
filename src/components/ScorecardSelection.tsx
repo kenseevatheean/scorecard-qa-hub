@@ -186,7 +186,7 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
                 <div>
                   <h3 className="font-medium text-green-900">Ready to Start Audit</h3>
                   <p className="text-sm text-green-700">
-                    Area/Category: <strong>{selectedDepartment}</strong> | Employee: <strong>{selectedEmployee}</strong>
+                    Department: <strong>{selectedDepartment}</strong> | Employee: <strong>{selectedEmployee}</strong>
                   </p>
                 </div>
               </div>
