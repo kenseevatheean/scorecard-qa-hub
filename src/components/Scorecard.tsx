@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { User, Calendar, AlertTriangle, CheckCircle, X, Building2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { departmentScorecards } from '@/data/scorecardData';
+import { scorecardData } from '@/data/scorecardData';
 import { ScorecardItem, GeneralItem } from '@/types/scorecard';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -32,13 +32,13 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
       'Closures': 'closures'
     };
     
-    return mappings[departmentName] || departmentScorecards[0].id;
+    return mappings[departmentName] || scorecardData[0].id;
   };
   
   // Initialize with preselected values or defaults
   const defaultDepartmentId = preSelectedDepartment 
     ? getDepartmentScorecard(preSelectedDepartment)
-    : departmentScorecards[0].id;
+    : scorecardData[0].id;
     
   const [selectedDepartment, setSelectedDepartment] = useState(defaultDepartmentId);
   const [employeeName, setEmployeeName] = useState(preSelectedEmployee || 'Jane Doe');
@@ -58,7 +58,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   // State for each department's scorecard data
   const [departmentData, setDepartmentData] = useState(() => {
     const initialData: Record<string, { mandatory: ScorecardItem[], general: GeneralItem[] }> = {};
-    departmentScorecards.forEach(dept => {
+    scorecardData.forEach(dept => {
       initialData[dept.id] = {
         mandatory: JSON.parse(JSON.stringify(dept.sections.mandatory)),
         general: JSON.parse(JSON.stringify(dept.sections.general))
@@ -98,7 +98,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     fetchEmployees();
   }, [employeeName]);
 
-  const currentDepartment = departmentScorecards.find(dept => dept.id === selectedDepartment);
+  const currentDepartment = scorecardData.find(dept => dept.id === selectedDepartment);
   const currentData = departmentData[selectedDepartment];
 
   const handleScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na', isSubItem = false, parentId?: string) => {
@@ -228,7 +228,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                 <SelectValue placeholder="Select a scorecard" />
               </SelectTrigger>
               <SelectContent className="bg-white border shadow-lg z-50">
-                {departmentScorecards.map((dept) => (
+                {scorecardData.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id}>
                     {dept.name}
                   </SelectItem>

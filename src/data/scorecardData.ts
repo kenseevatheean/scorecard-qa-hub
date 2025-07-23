@@ -1,7 +1,7 @@
 
 import { DepartmentScorecard } from '@/types/scorecard';
 
-export const departmentScorecards: DepartmentScorecard[] = [
+export const scorecardData: DepartmentScorecard[] = [
   {
     id: 'financial-reviews',
     name: 'Financial Reviews',
