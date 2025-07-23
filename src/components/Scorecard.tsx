@@ -28,7 +28,8 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     const mappings: { [key: string]: string } = {
       'Customer Support': 'customer-support-call',
       'Customer Relations': 'customer-relations-email', 
-      'Financial Reviews': 'financial-reviews'
+      'Financial Reviews': 'financial-reviews',
+      'Closures': 'closures'
     };
     
     return mappings[departmentName] || departmentScorecards[0].id;

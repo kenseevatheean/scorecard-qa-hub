@@ -259,5 +259,143 @@ export const departmentScorecards: DepartmentScorecard[] = [
         }
       ]
     }
+  },
+  {
+    id: 'closures',
+    name: 'Closures',
+    sections: {
+      mandatory: [
+        {
+          id: 'assignment-stage-updated',
+          category: 'Mandatory',
+          description: 'Assignment stage updated correctly (e.g. Review for Closure, Fee Request, Final Report, Termination)',
+          score: null
+        },
+        {
+          id: 'final-review-note',
+          category: 'Mandatory',
+          description: 'Final review case note completed - note on file to confirm that the advisor has reviewed the case prior to closure and confirmed all assets have been realised?',
+          score: null
+        },
+        {
+          id: 'contributions-made',
+          category: 'Mandatory',
+          description: 'All contributions made and debtor advised to stop payment?',
+          score: null
+        },
+        {
+          id: 'closure-email-sent',
+          category: 'Mandatory',
+          description: 'Email/ Letter regarding closure sent to debtor',
+          score: null
+        },
+        {
+          id: 'proposal-check',
+          category: 'Mandatory',
+          description: 'Did the advisor check the proposal / Chairman\'s report / Mods ( E.g 30% rule, Fixed Fee, etc )',
+          score: null
+        },
+        {
+          id: 'creditor-claims',
+          category: 'Mandatory',
+          description: 'All creditor claims received/admitted/rejected/excluded',
+          score: null
+        },
+        {
+          id: 'dividend-reclaim-check',
+          category: 'Mandatory',
+          description: 'Did the Advisor Check for returned dividends / dividend reclaim?',
+          score: null
+        },
+        {
+          id: 'chase-creditors',
+          category: 'Mandatory',
+          description: 'Did the Advisor chase creditors for outstanding claims ?',
+          score: null
+        },
+        {
+          id: 'noid-sla',
+          category: 'Mandatory',
+          description: 'NOID – SLA of 2 Weeks for email and SLA of 3 weeks for letter followed',
+          score: null
+        },
+        {
+          id: 'claim-exclusion-sent',
+          category: 'Mandatory',
+          description: 'Claim exclusion sent to IP',
+          score: null
+        },
+        {
+          id: 'ip-query-raised',
+          category: 'Mandatory',
+          description: 'Did the advisor raise an IP Query, where applicable?',
+          score: null
+        },
+        {
+          id: 'assets-realised',
+          category: 'Mandatory',
+          description: 'All assets realised following correct process',
+          score: null
+        },
+        {
+          id: 'disbursements-fees-paid',
+          category: 'Mandatory',
+          description: 'All disbursements and fees been paid correctly?',
+          score: null
+        },
+        {
+          id: 'fees-dividends-zero-balance',
+          category: 'Mandatory',
+          description: 'Confirm all fees & dividends paid and bank balance at zero prior to closing (check dividends paid per pence and report states correct payment made)',
+          score: null
+        },
+        {
+          id: 'refund-process',
+          category: 'Mandatory',
+          description: 'Did the Advisor follow the process for refund prior to Closure? ( E.g. Chase debtor, get BACs details, raise request on Jira )',
+          score: null
+        },
+        {
+          id: 'final-report-prepared',
+          category: 'Mandatory',
+          description: 'Prepare Final Report and issue to debtor and creditors',
+          score: null
+        },
+        {
+          id: 'correct-footnote',
+          category: 'Mandatory',
+          description: 'Did the advisor use the correct footnote on the final report, where applicable?',
+          score: null
+        }
+      ],
+      general: [
+        {
+          id: 'case-note-closures',
+          description: 'Case note',
+          score: null,
+          subItems: [
+            'Correct CNC used?',
+            'Detailed case note left?',
+            'Case note reflect conversation?',
+            'All correspondences updated on case note?'
+          ]
+        },
+        {
+          id: 'eod-process-closures',
+          description: 'EOD process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'vulnerability-process-closures',
+          description: 'Vulnerability process followed, if applicable',
+          score: null
+        },
+        {
+          id: 'follow-up-closures',
+          description: 'Follow up',
+          score: null
+        }
+      ]
+    }
   }
 ];
