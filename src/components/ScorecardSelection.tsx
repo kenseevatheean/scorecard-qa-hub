@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Users, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ScorecardSelectionProps {
   onStartAudit: (department: string, employee: string) => void;
@@ -14,29 +15,48 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [employees, setEmployees] = useState<{ [key: string]: string[] }>({});
+  const [loading, setLoading] = useState(true);
 
-  const departments = [
-    'Customer Support',
-    'Asset Team', 
-    'Creditor Services',
-    'Financial Reviews',
-    'Mailbox Team',
-    'Customer Relations - Email',
-    'Customer Support - Call'
-  ];
+  // Fetch departments and employees from Supabase
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const { data: employeeData, error } = await supabase
+          .from('employees')
+          .select('name, department')
+          .eq('status', 'active');
 
-  // Mock employee data by department
-  const employeesByDepartment: { [key: string]: string[] } = {
-    'Customer Support': ['Alice Johnson', 'Bob Smith', 'Carol Davis', 'David Wilson', 'Emma Brown'],
-    'Asset Team': ['Frank Miller', 'Grace Taylor', 'Henry Clark', 'Iris Moore', 'Jack White'],
-    'Creditor Services': ['Karen Lee', 'Liam Garcia', 'Maya Patel', 'Noah Kim', 'Olivia Chen'],
-    'Financial Reviews': ['Paul Rodriguez', 'Quinn Thompson', 'Rachel Green', 'Sam Williams', 'Tara Jones'],
-    'Mailbox Team': ['Uma Sharma', 'Victor Lopez', 'Wendy Martinez', 'Xavier Young', 'Yuki Tanaka'],
-    'Customer Relations - Email': ['Zoe Anderson', 'Adam Cooper', 'Beth Turner', 'Chris Evans', 'Diana Prince'],
-    'Customer Support - Call': ['Ethan Hunt', 'Fiona Shaw', 'George Lucas', 'Helen Parker', 'Ian Fleming']
-  };
+        if (error) {
+          console.error('Error fetching employees:', error);
+          return;
+        }
 
-  const availableEmployees = selectedDepartment ? employeesByDepartment[selectedDepartment] || [] : [];
+        // Extract unique departments
+        const uniqueDepartments = [...new Set(employeeData.map(emp => emp.department))];
+        setDepartments(uniqueDepartments);
+
+        // Group employees by department
+        const employeesByDept: { [key: string]: string[] } = {};
+        employeeData.forEach(emp => {
+          if (!employeesByDept[emp.department]) {
+            employeesByDept[emp.department] = [];
+          }
+          employeesByDept[emp.department].push(emp.name);
+        });
+        setEmployees(employeesByDept);
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployeeData();
+  }, []);
+
+  const availableEmployees = selectedDepartment ? employees[selectedDepartment] || [] : [];
   
   const filteredEmployees = availableEmployees.filter(employee =>
     employee.toLowerCase().includes(searchTerm.toLowerCase())
@@ -72,9 +92,9 @@ const ScorecardSelection: React.FC<ScorecardSelectionProps> = ({ onStartAudit })
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="department">Department</Label>
-              <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+              <Select value={selectedDepartment} onValueChange={setSelectedDepartment} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a department..." />
+                  <SelectValue placeholder={loading ? "Loading departments..." : "Choose a department..."} />
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map((dept) => (
