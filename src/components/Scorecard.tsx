@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface ScorecardItem {
   id: string;
   item_id: string;
-  section_type: 'mandatory' | 'general';
+  section_type: 'mandatory' | 'general' | 'procedural';
   category?: string;
   description: string;
   score?: 'pass' | 'fail' | 'na' | null;
@@ -147,7 +147,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           const itemsWithScores: ScorecardItem[] = itemsData.map(item => ({
             id: item.id,
             item_id: item.item_id,
-            section_type: item.section_type as 'mandatory' | 'general',
+            section_type: item.section_type as 'mandatory' | 'general' | 'procedural',
             category: item.category || undefined,
             description: item.description,
             score: null
@@ -399,6 +399,80 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                 <p className="text-lg font-medium mb-2">No Assessment Items</p>
                 <p className="text-sm">
                   No mandatory assessment items found for <strong>{currentScorecard?.name}</strong>.
+                </p>
+              </div>
+            )
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Procedural Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center space-x-2">
+          <CheckCircle className="h-5 w-5 text-blue-600" />
+          <CardTitle className="text-white bg-blue-600 px-3 py-1 rounded">Procedural Sections</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {itemsLoading ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="animate-spin h-8 w-8 border-b-2 border-blue-600 rounded-full mx-auto mb-4"></div>
+              <p>Loading procedural items...</p>
+            </div>
+          ) : (
+            scorecardItems.filter(item => item.section_type === 'procedural').length > 0 ? (
+              scorecardItems
+                .filter(item => item.section_type === 'procedural')
+                .map((item, index) => (
+                  <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                            {index + 1}
+                          </span>
+                          {item.category && (
+                            <Badge variant="outline" className="text-xs">
+                              {item.category}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-2 mt-3">
+                      <button
+                        onClick={() => handleScoreChange(item.item_id, 'pass')}
+                        className={getScoreButtonClass('pass', item.score)}
+                        disabled={!canEdit}
+                      >
+                        Pass
+                      </button>
+                      <button
+                        onClick={() => handleScoreChange(item.item_id, 'fail')}
+                        className={getScoreButtonClass('fail', item.score)}
+                        disabled={!canEdit}
+                      >
+                        Fail
+                      </button>
+                      <button
+                        onClick={() => handleScoreChange(item.item_id, 'na')}
+                        className={getScoreButtonClass('na', item.score)}
+                        disabled={!canEdit}
+                      >
+                        N/A
+                      </button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-lg font-medium mb-2">No Procedural Items</p>
+                <p className="text-sm">
+                  No procedural assessment items found for <strong>{currentScorecard?.name}</strong>.
                 </p>
               </div>
             )
