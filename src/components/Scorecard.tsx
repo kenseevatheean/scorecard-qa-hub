@@ -12,6 +12,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+interface ScorecardItem {
+  id: string;
+  item_id: string;
+  section_type: 'mandatory' | 'general';
+  category?: string;
+  description: string;
+  score?: 'pass' | 'fail' | 'na' | null;
+}
+
 interface ScorecardProps {
   preSelectedDepartment?: string;
   preSelectedEmployee?: string;
@@ -21,9 +30,11 @@ interface ScorecardProps {
 const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelectedEmployee, onBack }) => {
   const { user } = useAuth();
   
-  // State for scorecards loaded from database
+  // State for scorecards and items loaded from database
   const [scorecards, setScorecards] = useState<Array<{id: string, name: string, department: string}>>([]);
+  const [scorecardItems, setScorecardItems] = useState<ScorecardItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [itemsLoading, setItemsLoading] = useState(false);
   
   // Initialize with preselected values or defaults
   const [selectedScorecardId, setSelectedScorecardId] = useState('');
@@ -113,17 +124,58 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     fetchEmployees();
   }, [employeeName]);
 
+  // Fetch scorecard items when a scorecard is selected
+  useEffect(() => {
+    const fetchScorecardItems = async () => {
+      if (!selectedScorecardId) return;
+      
+      setItemsLoading(true);
+      try {
+        const { data: itemsData, error } = await supabase
+          .from('scorecard_items')
+          .select('*')
+          .eq('scorecard_id', selectedScorecardId)
+          .order('item_id');
+
+        if (error) {
+          console.error('Error fetching scorecard items:', error);
+          return;
+        }
+
+        if (itemsData) {
+          // Initialize items with null scores and proper typing
+          const itemsWithScores: ScorecardItem[] = itemsData.map(item => ({
+            id: item.id,
+            item_id: item.item_id,
+            section_type: item.section_type as 'mandatory' | 'general',
+            category: item.category || undefined,
+            description: item.description,
+            score: null
+          }));
+          setScorecardItems(itemsWithScores);
+        }
+      } catch (error) {
+        console.error('Error fetching scorecard items:', error);
+      } finally {
+        setItemsLoading(false);
+      }
+    };
+
+    fetchScorecardItems();
+  }, [selectedScorecardId]);
+
   const currentScorecard = scorecards.find(sc => sc.id === selectedScorecardId);
 
-  // For now, we'll use a simple structure since we don't have items in the database yet
   const handleScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na') => {
-    // This will be implemented when we add scorecard items to the database
-    console.log('Score changed for item:', itemId, 'to:', newScore);
+    setScorecardItems(prev => prev.map(item => 
+      item.item_id === itemId ? { ...item, score: newScore } : item
+    ));
   };
 
   const handleGeneralScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na') => {
-    // This will be implemented when we add scorecard items to the database
-    console.log('General score changed for item:', itemId, 'to:', newScore);
+    setScorecardItems(prev => prev.map(item => 
+      item.item_id === itemId ? { ...item, score: newScore } : item
+    ));
   };
 
   const getScoreButtonClass = (score: 'pass' | 'fail' | 'na', currentScore: 'pass' | 'fail' | 'na' | null) => {
@@ -148,6 +200,8 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     setPositives('');
     setNegatives('');
     setRemarks('');
+    // Reset all scorecard item scores
+    setScorecardItems(prev => prev.map(item => ({ ...item, score: null })));
     toast({
       title: "Data Cleared",
       description: "All scorecard data has been cleared.",
@@ -285,13 +339,70 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           <CardTitle className="text-white bg-red-600 px-3 py-1 rounded">Mandatory Sections</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-center py-8 text-gray-500">
-            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium mb-2">Scorecard Items Coming Soon</p>
-            <p className="text-sm">
-              The assessment items for <strong>{currentScorecard?.name}</strong> will be configured shortly.
-            </p>
-          </div>
+          {itemsLoading ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="animate-spin h-8 w-8 border-b-2 border-red-600 rounded-full mx-auto mb-4"></div>
+              <p>Loading assessment items...</p>
+            </div>
+          ) : (
+            scorecardItems.filter(item => item.section_type === 'mandatory').length > 0 ? (
+              scorecardItems
+                .filter(item => item.section_type === 'mandatory')
+                .map((item, index) => (
+                  <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className="bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">
+                            {index + 1}
+                          </span>
+                          {item.category && (
+                            <Badge variant="outline" className="text-xs">
+                              {item.category}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-2 mt-3">
+                      <button
+                        onClick={() => handleScoreChange(item.item_id, 'pass')}
+                        className={getScoreButtonClass('pass', item.score)}
+                        disabled={!canEdit}
+                      >
+                        Pass
+                      </button>
+                      <button
+                        onClick={() => handleScoreChange(item.item_id, 'fail')}
+                        className={getScoreButtonClass('fail', item.score)}
+                        disabled={!canEdit}
+                      >
+                        Fail
+                      </button>
+                      <button
+                        onClick={() => handleScoreChange(item.item_id, 'na')}
+                        className={getScoreButtonClass('na', item.score)}
+                        disabled={!canEdit}
+                      >
+                        N/A
+                      </button>
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-lg font-medium mb-2">No Assessment Items</p>
+                <p className="text-sm">
+                  No mandatory assessment items found for <strong>{currentScorecard?.name}</strong>.
+                </p>
+              </div>
+            )
+          )}
         </CardContent>
       </Card>
 
@@ -302,13 +413,51 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           <CardTitle>General</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-center py-8 text-gray-500">
-            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium mb-2">General Assessment Items Coming Soon</p>
-            <p className="text-sm">
-              The general assessment items will be available once configured.
-            </p>
-          </div>
+          {itemsLoading ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="animate-spin h-8 w-8 border-b-2 border-orange-600 rounded-full mx-auto mb-4"></div>
+              <p>Loading general items...</p>
+            </div>
+          ) : (
+            scorecardItems.filter(item => item.section_type === 'general').length > 0 ? (
+              <>
+                {scorecardItems
+                  .filter(item => item.section_type === 'general')
+                  .map((item, index) => (
+                    <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded">
+                              {index + 1}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3">
+                        <Textarea
+                          placeholder="Add comments for this item..."
+                          className="text-sm"
+                          disabled={!canEdit}
+                        />
+                      </div>
+                    </div>
+                  ))}
+              </>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-lg font-medium mb-2">No General Items</p>
+                <p className="text-sm">
+                  No general assessment items found for this scorecard.
+                </p>
+              </div>
+            )
+          )}
           
           <div className="mt-4">
             <Label htmlFor="general-comments">Add comments for General section...</Label>
