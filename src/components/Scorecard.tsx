@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { User, Calendar, AlertTriangle, CheckCircle, X, Building2, ArrowLeft } from 'lucide-react';
+import { User, Calendar, AlertTriangle, CheckCircle, X, Building2, ArrowLeft, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,6 +45,8 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   const [generalComments, setGeneralComments] = useState('');
   const [employees, setEmployees] = useState<Array<{name: string, department: string}>>([]);
   const [actualEmployeeDepartment, setActualEmployeeDepartment] = useState<string>('');
+  const [auditResultId, setAuditResultId] = useState<string | null>(null);
+  const [auditStatus, setAuditStatus] = useState<'draft' | 'completed'>('draft');
   
   // Auditor's Comments
   const [summaryQuery, setSummaryQuery] = useState('');
@@ -203,11 +205,130 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     });
   };
 
-  const handleSave = () => {
-    toast({
-      title: "Scorecard Saved",
-      description: `The ${currentScorecard?.name} scorecard has been saved successfully.`,
-    });
+  // Calculate scores
+  const calculateScores = () => {
+    const mandatoryItems = scorecardItems.filter(item => item.section_type === 'mandatory');
+    const proceduralItems = scorecardItems.filter(item => item.section_type === 'procedural');
+    
+    const mandatoryScored = mandatoryItems.filter(item => item.score && item.score !== 'na');
+    const proceduralScored = proceduralItems.filter(item => item.score && item.score !== 'na');
+    
+    const mandatoryPassed = mandatoryItems.filter(item => item.score === 'pass').length;
+    const proceduralPassed = proceduralItems.filter(item => item.score === 'pass').length;
+    
+    const mandatoryScore = mandatoryScored.length > 0 ? (mandatoryPassed / mandatoryScored.length) * 100 : 0;
+    const proceduralScore = proceduralScored.length > 0 ? (proceduralPassed / proceduralScored.length) * 100 : 0;
+    
+    // Weighted scoring: 70% mandatory, 30% procedural
+    const overallScore = (mandatoryScore * 0.7) + (proceduralScore * 0.3);
+    
+    return {
+      mandatoryScore: Math.round(mandatoryScore * 100) / 100,
+      proceduralScore: Math.round(proceduralScore * 100) / 100,
+      overallScore: Math.round(overallScore * 100) / 100,
+      mandatoryPassed,
+      mandatoryTotal: mandatoryScored.length,
+      proceduralPassed,
+      proceduralTotal: proceduralScored.length
+    };
+  };
+
+  const scores = calculateScores();
+
+  const handleSave = async () => {
+    try {
+      // Find the employee ID
+      const { data: employeeData, error: employeeError } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('name', employeeName)
+        .single();
+
+      if (employeeError || !employeeData) {
+        toast({
+          title: "Error",
+          description: "Employee not found. Please check the employee name.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const auditData = {
+        employee_id: employeeData.id,
+        auditor_name: auditorName,
+        scorecard_id: selectedScorecardId,
+        audit_date: auditDate,
+        overall_score: scores.overallScore,
+        mandatory_score: scores.mandatoryScore,
+        procedural_score: scores.proceduralScore,
+        status: auditStatus,
+        auditor_comments: `Summary: ${summaryQuery}\n\nPositives: ${positives}\n\nNegatives: ${negatives}\n\nRemarks: ${remarks}`
+      };
+
+      let resultId = auditResultId;
+
+      if (auditResultId) {
+        // Update existing audit
+        const { error: updateError } = await supabase
+          .from('audit_results')
+          .update(auditData)
+          .eq('id', auditResultId);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new audit
+        const { data: newAudit, error: insertError } = await supabase
+          .from('audit_results')
+          .insert(auditData)
+          .select('id')
+          .single();
+
+        if (insertError) throw insertError;
+        resultId = newAudit.id;
+        setAuditResultId(resultId);
+      }
+
+      // Save individual item scores
+      const itemScoresData = scorecardItems
+        .filter(item => item.score && item.score !== null)
+        .map(item => ({
+          audit_result_id: resultId,
+          scorecard_item_id: item.id,
+          score: item.score
+        }));
+
+      if (itemScoresData.length > 0) {
+        // Delete existing scores for this audit
+        await supabase
+          .from('audit_item_scores')
+          .delete()
+          .eq('audit_result_id', resultId);
+
+        // Insert new scores
+        const { error: scoresError } = await supabase
+          .from('audit_item_scores')
+          .insert(itemScoresData);
+
+        if (scoresError) throw scoresError;
+      }
+
+      toast({
+        title: "Scorecard Saved",
+        description: `The ${currentScorecard?.name} scorecard has been saved successfully with an overall score of ${scores.overallScore}%.`,
+      });
+    } catch (error) {
+      console.error('Error saving scorecard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save the scorecard. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleMarkAsCompleted = async () => {
+    setAuditStatus('completed');
+    await handleSave();
   };
 
   const canEdit = user?.role === 'qa_officer' || user?.role === 'manager';
@@ -519,6 +640,75 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         </CardContent>
       </Card>
 
+      {/* Real-time Scoring Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center space-x-2">
+          <TrendingUp className="h-5 w-5 text-green-600" />
+          <CardTitle>Audit Score</CardTitle>
+          <Badge variant={scores.overallScore >= 80 ? "default" : scores.overallScore >= 60 ? "secondary" : "destructive"} className="ml-auto">
+            {scores.overallScore}% Overall
+          </Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Overall Score */}
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {scores.overallScore}%
+              </div>
+              <div className="text-sm text-gray-600 mb-2">Overall Score</div>
+              <div className={`text-sm font-medium ${
+                scores.overallScore >= 80 ? 'text-green-600' : 
+                scores.overallScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+              }`}>
+                {scores.overallScore >= 80 ? 'Excellent' : 
+                 scores.overallScore >= 60 ? 'Good' : 'Needs Improvement'}
+              </div>
+            </div>
+
+            {/* Mandatory Score */}
+            <div className="text-center p-4 bg-red-50 rounded-lg">
+              <div className="text-2xl font-bold text-red-800 mb-1">
+                {scores.mandatoryScore}%
+              </div>
+              <div className="text-sm text-gray-600 mb-2">Mandatory (70% weight)</div>
+              <div className="text-xs text-gray-500">
+                {scores.mandatoryPassed} / {scores.mandatoryTotal} passed
+              </div>
+            </div>
+
+            {/* Procedural Score */}
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-800 mb-1">
+                {scores.proceduralScore}%
+              </div>
+              <div className="text-sm text-gray-600 mb-2">Procedural (30% weight)</div>
+              <div className="text-xs text-gray-500">
+                {scores.proceduralPassed} / {scores.proceduralTotal} passed
+              </div>
+            </div>
+          </div>
+
+          {/* Status and Actions */}
+          <div className="mt-6 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Badge variant={auditStatus === 'completed' ? 'default' : 'secondary'}>
+                {auditStatus === 'completed' ? 'Completed' : 'Draft'}
+              </Badge>
+              {auditResultId && (
+                <span className="text-sm text-gray-500">
+                  Audit ID: {auditResultId.slice(0, 8)}...
+                </span>
+              )}
+            </div>
+            {canEdit && auditStatus === 'draft' && (
+              <Button onClick={handleMarkAsCompleted} variant="default" className="bg-green-600 hover:bg-green-700">
+                Mark as Completed
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Auditor's Comments */}
       <Card className="bg-slate-800 text-white">

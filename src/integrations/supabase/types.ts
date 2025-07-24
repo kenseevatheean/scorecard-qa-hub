@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_item_scores: {
+        Row: {
+          audit_result_id: string
+          created_at: string
+          id: string
+          item_comments: string | null
+          score: string
+          scorecard_item_id: string
+          updated_at: string
+        }
+        Insert: {
+          audit_result_id: string
+          created_at?: string
+          id?: string
+          item_comments?: string | null
+          score: string
+          scorecard_item_id: string
+          updated_at?: string
+        }
+        Update: {
+          audit_result_id?: string
+          created_at?: string
+          id?: string
+          item_comments?: string | null
+          score?: string
+          scorecard_item_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_item_scores_audit_result_id_fkey"
+            columns: ["audit_result_id"]
+            isOneToOne: false
+            referencedRelation: "audit_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_results: {
+        Row: {
+          audit_date: string
+          auditor_comments: string | null
+          auditor_name: string
+          created_at: string
+          employee_id: string
+          id: string
+          mandatory_score: number
+          overall_score: number
+          procedural_score: number
+          scorecard_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          audit_date?: string
+          auditor_comments?: string | null
+          auditor_name: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          mandatory_score?: number
+          overall_score?: number
+          procedural_score?: number
+          scorecard_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          audit_date?: string
+          auditor_comments?: string | null
+          auditor_name?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          mandatory_score?: number
+          overall_score?: number
+          procedural_score?: number
+          scorecard_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string
