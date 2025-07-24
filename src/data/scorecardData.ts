@@ -281,31 +281,7 @@ const scorecardData: DepartmentScorecard[] = [
         {
           id: 'reference-numbers-match',
           category: 'Reference Numbers',
-          description: 'Do the Reference Numbers match?',
-          score: null
-        },
-        {
-          id: 'reference-numbers-updated',
-          category: 'Reference Numbers',
-          description: 'If no, were they updated correctly?',
-          score: null
-        },
-        {
-          id: 'claim-submitted',
-          category: 'Claim Processing',
-          description: 'Was the claim submitted/admitted?',
-          score: null
-        },
-        {
-          id: 'duplicates-checked',
-          category: 'Duplicate Checks',
-          description: 'Has the advisor checked for possible Duplicates and take appropriate action?',
-          score: null
-        },
-        {
-          id: 'dividend-notified',
-          category: 'Reclaim',
-          description: 'Was reclaim of dividend notified to recon team?',
+          description: 'Do the Reference Numbers match? If no, were they updated correctly? Was the claim submitted/admitted? Has the advisor checked for possible Duplicates and take appropriate action? Was reclaim of dividend notified to recon team?',
           score: null
         },
         {
