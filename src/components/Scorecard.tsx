@@ -29,7 +29,8 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
       'Customer Support': 'customer-support-call',
       'Customer Relations': 'customer-relations-email', 
       'Financial Reviews': 'financial-reviews',
-      'Closures': 'closures'
+      'Closures': 'closures',
+      'Creditor Services': 'creditor-services-assignment'
     };
     
     return mappings[departmentName] || scorecardData[0].id;
