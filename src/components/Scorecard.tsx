@@ -357,9 +357,31 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                             </Badge>
                           )}
                         </div>
-                         <p className="text-base text-gray-800 leading-relaxed font-medium">
-                          {item.description}
-                        </p>
+                         <div className="text-base text-gray-800 leading-relaxed font-medium">
+                          {item.description.includes('Case note,Correct CNC used?,Detailed case note left?,Case note reflect conversation?,All correspondences updated on case note?') ? (
+                            <div className="space-y-1">
+                              <div className="font-semibold text-gray-900">Case Note</div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>Correct CNC used?</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>Detailed case note left?</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>Case Note reflect conversation?</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>All correspondences updated on case note?</span>
+                              </div>
+                            </div>
+                          ) : (
+                            item.description
+                          )}
+                        </div>
                       </div>
                     </div>
                     
@@ -431,9 +453,31 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                             </Badge>
                           )}
                         </div>
-                         <p className="text-base text-gray-800 leading-relaxed font-medium">
-                          {item.description}
-                        </p>
+                         <div className="text-base text-gray-800 leading-relaxed font-medium">
+                          {item.description.includes('Case note,Correct CNC used?,Detailed case note left?,Case note reflect conversation?,All correspondences updated on case note?') ? (
+                            <div className="space-y-1">
+                              <div className="font-semibold text-gray-900">Case Note</div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>Correct CNC used?</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>Detailed case note left?</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>Case Note reflect conversation?</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-gray-700">
+                                <span className="text-gray-400">→</span>
+                                <span>All correspondences updated on case note?</span>
+                              </div>
+                            </div>
+                          ) : (
+                            item.description
+                          )}
+                        </div>
                       </div>
                     </div>
                     
