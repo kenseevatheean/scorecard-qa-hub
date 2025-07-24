@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface ScorecardItem {
   id: string;
   item_id: string;
-  section_type: 'mandatory' | 'general' | 'procedural';
+  section_type: 'mandatory' | 'procedural';
   category?: string;
   description: string;
   score?: 'pass' | 'fail' | 'na' | null;
@@ -147,7 +147,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           const itemsWithScores: ScorecardItem[] = itemsData.map(item => ({
             id: item.id,
             item_id: item.item_id,
-            section_type: item.section_type as 'mandatory' | 'general' | 'procedural',
+            section_type: item.section_type as 'mandatory' | 'procedural',
             category: item.category || undefined,
             description: item.description,
             score: null
@@ -172,11 +172,6 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     ));
   };
 
-  const handleGeneralScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na') => {
-    setScorecardItems(prev => prev.map(item => 
-      item.item_id === itemId ? { ...item, score: newScore } : item
-    ));
-  };
 
   const getScoreButtonClass = (score: 'pass' | 'fail' | 'na', currentScore: 'pass' | 'fail' | 'na' | null) => {
     const baseClass = "px-3 py-1 rounded text-sm font-medium transition-colors";
@@ -362,7 +357,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">
+                         <p className="text-base text-gray-800 leading-relaxed font-medium">
                           {item.description}
                         </p>
                       </div>
@@ -436,7 +431,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">
+                         <p className="text-base text-gray-800 leading-relaxed font-medium">
                           {item.description}
                         </p>
                       </div>
@@ -480,72 +475,6 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         </CardContent>
       </Card>
 
-      {/* General Section */}
-      <Card>
-        <CardHeader className="flex flex-row items-center space-x-2">
-          <CheckCircle className="h-5 w-5 text-orange-600" />
-          <CardTitle>General</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {itemsLoading ? (
-            <div className="text-center py-8 text-gray-500">
-              <div className="animate-spin h-8 w-8 border-b-2 border-orange-600 rounded-full mx-auto mb-4"></div>
-              <p>Loading general items...</p>
-            </div>
-          ) : (
-            scorecardItems.filter(item => item.section_type === 'general').length > 0 ? (
-              <>
-                {scorecardItems
-                  .filter(item => item.section_type === 'general')
-                  .map((item, index) => (
-                    <div key={item.id} className="border rounded-lg p-4 bg-gray-50">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <span className="bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded">
-                              {index + 1}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700 leading-relaxed">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3">
-                        <Textarea
-                          placeholder="Add comments for this item..."
-                          className="text-sm"
-                          disabled={!canEdit}
-                        />
-                      </div>
-                    </div>
-                  ))}
-              </>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-lg font-medium mb-2">No General Items</p>
-                <p className="text-sm">
-                  No general assessment items found for this scorecard.
-                </p>
-              </div>
-            )
-          )}
-          
-          <div className="mt-4">
-            <Label htmlFor="general-comments">Add comments for General section...</Label>
-            <Textarea
-              id="general-comments"
-              value={generalComments}
-              onChange={(e) => setGeneralComments(e.target.value)}
-              placeholder="Add comments for General section..."
-              className="mt-2"
-              disabled={!canEdit}
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Auditor's Comments */}
       <Card className="bg-slate-800 text-white">
