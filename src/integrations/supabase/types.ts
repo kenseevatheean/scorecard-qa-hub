@@ -47,6 +47,84 @@ export type Database = {
         }
         Relationships: []
       }
+      scorecard_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          item_id: string
+          parent_item_id: string | null
+          scorecard_id: string
+          section_type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          item_id: string
+          parent_item_id?: string | null
+          scorecard_id: string
+          section_type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          item_id?: string
+          parent_item_id?: string | null
+          scorecard_id?: string
+          section_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorecard_items_parent_item_id_fkey"
+            columns: ["parent_item_id"]
+            isOneToOne: false
+            referencedRelation: "scorecard_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorecard_items_scorecard_id_fkey"
+            columns: ["scorecard_id"]
+            isOneToOne: false
+            referencedRelation: "scorecards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scorecards: {
+        Row: {
+          category: string | null
+          created_at: string
+          department: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          department: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          department?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
