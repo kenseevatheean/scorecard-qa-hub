@@ -311,11 +311,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           {currentData?.mandatory.map((item) => (
             <div key={item.id} className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="text-sm font-medium flex-1">
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>{item.description}</li>
-                  </ul>
-                </div>
+                <span className="text-sm font-medium flex-1">{item.description}</span>
                 <div className="flex space-x-2 ml-4">
                   <button
                     className={getScoreButtonClass('pass', item.score)}
