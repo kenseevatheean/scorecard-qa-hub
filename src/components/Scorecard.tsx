@@ -10,8 +10,6 @@ import { Separator } from '@/components/ui/separator';
 import { User, Calendar, AlertTriangle, CheckCircle, X, Building2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { scorecardData } from '@/data/scorecardData';
-import { ScorecardItem, GeneralItem } from '@/types/scorecard';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ScorecardProps {
@@ -23,25 +21,12 @@ interface ScorecardProps {
 const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelectedEmployee, onBack }) => {
   const { user } = useAuth();
   
-  // Map department names to scorecard IDs
-  const getDepartmentScorecard = (departmentName: string) => {
-    const mappings: { [key: string]: string } = {
-      'Customer Support': 'customer-support-call',
-      'Customer Relations': 'customer-relations-email', 
-      'Financial Reviews': 'financial-reviews',
-      'Closures': 'closures',
-      'Creditor Services': 'creditor-services-assignment'
-    };
-    
-    return mappings[departmentName] || scorecardData[0].id;
-  };
+  // State for scorecards loaded from database
+  const [scorecards, setScorecards] = useState<Array<{id: string, name: string, department: string}>>([]);
+  const [loading, setLoading] = useState(true);
   
   // Initialize with preselected values or defaults
-  const defaultDepartmentId = preSelectedDepartment 
-    ? getDepartmentScorecard(preSelectedDepartment)
-    : scorecardData[0].id;
-    
-  const [selectedDepartment, setSelectedDepartment] = useState(defaultDepartmentId);
+  const [selectedScorecardId, setSelectedScorecardId] = useState('');
   const [employeeName, setEmployeeName] = useState(preSelectedEmployee || 'Jane Doe');
   const [caseReference, setCaseReference] = useState('IVAT23456');
   const [auditDate, setAuditDate] = useState('24/08/2025');
@@ -55,18 +40,47 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   const [positives, setPositives] = useState('');
   const [negatives, setNegatives] = useState('');
   const [remarks, setRemarks] = useState('');
-  
-  // State for each department's scorecard data
-  const [departmentData, setDepartmentData] = useState(() => {
-    const initialData: Record<string, { mandatory: ScorecardItem[], general: GeneralItem[] }> = {};
-    scorecardData.forEach(dept => {
-      initialData[dept.id] = {
-        mandatory: JSON.parse(JSON.stringify(dept.sections.mandatory)),
-        general: JSON.parse(JSON.stringify(dept.sections.general))
-      };
-    });
-    return initialData;
-  });
+
+  // Fetch scorecards from database
+  useEffect(() => {
+    const fetchScorecards = async () => {
+      try {
+        const { data: scorecardData, error } = await supabase
+          .from('scorecards')
+          .select('id, name, department')
+          .order('name');
+
+        if (error) {
+          console.error('Error fetching scorecards:', error);
+          return;
+        }
+
+        if (scorecardData) {
+          setScorecards(scorecardData);
+          
+          // If preSelectedDepartment is provided, try to find a matching scorecard
+          if (preSelectedDepartment && !selectedScorecardId) {
+            const matchingScorecard = scorecardData.find(sc => 
+              sc.department.toLowerCase() === preSelectedDepartment.toLowerCase()
+            );
+            if (matchingScorecard) {
+              setSelectedScorecardId(matchingScorecard.id);
+            } else if (scorecardData.length > 0) {
+              setSelectedScorecardId(scorecardData[0].id);
+            }
+          } else if (scorecardData.length > 0 && !selectedScorecardId) {
+            setSelectedScorecardId(scorecardData[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching scorecards:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchScorecards();
+  }, [preSelectedDepartment]);
 
   // Fetch employees from database
   useEffect(() => {
@@ -99,41 +113,17 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     fetchEmployees();
   }, [employeeName]);
 
-  const currentDepartment = scorecardData.find(dept => dept.id === selectedDepartment);
-  const currentData = departmentData[selectedDepartment];
+  const currentScorecard = scorecards.find(sc => sc.id === selectedScorecardId);
 
-  const handleScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na', isSubItem = false, parentId?: string) => {
-    setDepartmentData(prev => ({
-      ...prev,
-      [selectedDepartment]: {
-        ...prev[selectedDepartment],
-        mandatory: prev[selectedDepartment].mandatory.map(item => {
-          if (isSubItem && parentId && item.id === parentId && item.subItems) {
-            return {
-              ...item,
-              subItems: item.subItems.map(subItem => 
-                subItem.id === itemId ? { ...subItem, score: newScore } : subItem
-              )
-            };
-          } else if (!isSubItem && item.id === itemId) {
-            return { ...item, score: newScore };
-          }
-          return item;
-        })
-      }
-    }));
+  // For now, we'll use a simple structure since we don't have items in the database yet
+  const handleScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na') => {
+    // This will be implemented when we add scorecard items to the database
+    console.log('Score changed for item:', itemId, 'to:', newScore);
   };
 
   const handleGeneralScoreChange = (itemId: string, newScore: 'pass' | 'fail' | 'na') => {
-    setDepartmentData(prev => ({
-      ...prev,
-      [selectedDepartment]: {
-        ...prev[selectedDepartment],
-        general: prev[selectedDepartment].general.map(item => 
-          item.id === itemId ? { ...item, score: newScore } : item
-        )
-      }
-    }));
+    // This will be implemented when we add scorecard items to the database
+    console.log('General score changed for item:', itemId, 'to:', newScore);
   };
 
   const getScoreButtonClass = (score: 'pass' | 'fail' | 'na', currentScore: 'pass' | 'fail' | 'na' | null) => {
@@ -153,20 +143,6 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   };
 
   const handleClearData = () => {
-    setDepartmentData(prev => {
-      const newData = { ...prev };
-      Object.keys(newData).forEach(deptId => {
-        newData[deptId] = {
-          mandatory: newData[deptId].mandatory.map(item => ({ 
-            ...item, 
-            score: null,
-            subItems: item.subItems?.map(sub => ({ ...sub, score: null }))
-          })),
-          general: newData[deptId].general.map(item => ({ ...item, score: null }))
-        };
-      });
-      return newData;
-    });
     setGeneralComments('');
     setSummaryQuery('');
     setPositives('');
@@ -181,7 +157,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   const handleSave = () => {
     toast({
       title: "Scorecard Saved",
-      description: `The ${currentDepartment?.name} scorecard has been saved successfully.`,
+      description: `The ${currentScorecard?.name} scorecard has been saved successfully.`,
     });
   };
 
@@ -224,14 +200,14 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         <CardContent>
           <div className="space-y-2">
             <Label htmlFor="scorecard-select">Select Scorecard</Label>
-            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+            <Select value={selectedScorecardId} onValueChange={setSelectedScorecardId} disabled={loading}>
               <SelectTrigger id="scorecard-select" className="w-full md:w-80">
-                <SelectValue placeholder="Select a scorecard" />
+                <SelectValue placeholder={loading ? "Loading scorecards..." : "Select a scorecard"} />
               </SelectTrigger>
-              <SelectContent className="bg-white border shadow-lg z-50">
-                {scorecardData.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
+              <SelectContent className="bg-white border shadow-lg z-50 max-h-60 overflow-y-auto">
+                {scorecards.map((scorecard) => (
+                  <SelectItem key={scorecard.id} value={scorecard.id}>
+                    {scorecard.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -246,7 +222,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           <User className="h-5 w-5 text-blue-600" />
           <CardTitle>Employee Information</CardTitle>
           <Badge variant="outline" className="ml-auto">
-            {currentDepartment?.name}
+            {currentScorecard?.name}
           </Badge>
         </CardHeader>
         <CardContent>
@@ -309,65 +285,13 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           <CardTitle className="text-white bg-red-600 px-3 py-1 rounded">Mandatory Sections</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {currentData?.mandatory.map((item) => (
-            <div key={item.id} className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium flex-1">{item.description}</span>
-                <div className="flex space-x-2 ml-4">
-                  <button
-                    className={getScoreButtonClass('pass', item.score)}
-                    onClick={() => canEdit && handleScoreChange(item.id, 'pass')}
-                    disabled={!canEdit}
-                  >
-                    Pass
-                  </button>
-                  <button
-                    className={getScoreButtonClass('fail', item.score)}
-                    onClick={() => canEdit && handleScoreChange(item.id, 'fail')}
-                    disabled={!canEdit}
-                  >
-                    Fail
-                  </button>
-                  <button
-                    className={getScoreButtonClass('na', item.score)}
-                    onClick={() => canEdit && handleScoreChange(item.id, 'na')}
-                    disabled={!canEdit}
-                  >
-                    N/A
-                  </button>
-                </div>
-              </div>
-              
-              {item.subItems?.map((subItem) => (
-                <div key={subItem.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg ml-6">
-                  <span className="text-sm flex-1">└ {subItem.description}</span>
-                  <div className="flex space-x-2 ml-4">
-                    <button
-                      className={getScoreButtonClass('pass', subItem.score)}
-                      onClick={() => canEdit && handleScoreChange(subItem.id, 'pass', true, item.id)}
-                      disabled={!canEdit}
-                    >
-                      Pass
-                    </button>
-                    <button
-                      className={getScoreButtonClass('fail', subItem.score)}
-                      onClick={() => canEdit && handleScoreChange(subItem.id, 'fail', true, item.id)}
-                      disabled={!canEdit}
-                    >
-                      Fail
-                    </button>
-                    <button
-                      className={getScoreButtonClass('na', subItem.score)}
-                      onClick={() => canEdit && handleScoreChange(subItem.id, 'na', true, item.id)}
-                      disabled={!canEdit}
-                    >
-                      N/A
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
+          <div className="text-center py-8 text-gray-500">
+            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-lg font-medium mb-2">Scorecard Items Coming Soon</p>
+            <p className="text-sm">
+              The assessment items for <strong>{currentScorecard?.name}</strong> will be configured shortly.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -378,46 +302,13 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
           <CardTitle>General</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {currentData?.general.map((item) => (
-            <div key={item.id} className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium flex-1">{item.description}</span>
-                <div className="flex space-x-2 ml-4">
-                  <button
-                    className={getScoreButtonClass('pass', item.score)}
-                    onClick={() => canEdit && handleGeneralScoreChange(item.id, 'pass')}
-                    disabled={!canEdit}
-                  >
-                    Pass
-                  </button>
-                  <button
-                    className={getScoreButtonClass('fail', item.score)}
-                    onClick={() => canEdit && handleGeneralScoreChange(item.id, 'fail')}
-                    disabled={!canEdit}
-                  >
-                    Fail
-                  </button>
-                  <button
-                    className={getScoreButtonClass('na', item.score)}
-                    onClick={() => canEdit && handleGeneralScoreChange(item.id, 'na')}
-                    disabled={!canEdit}
-                  >
-                    N/A
-                  </button>
-                </div>
-              </div>
-              
-              {item.subItems && (
-                <div className="ml-6 space-y-2">
-                  {item.subItems.map((subText, index) => (
-                    <div key={index} className="text-sm text-gray-600 p-2 bg-blue-50 rounded">
-                      └ {subText}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          <div className="text-center py-8 text-gray-500">
+            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-lg font-medium mb-2">General Assessment Items Coming Soon</p>
+            <p className="text-sm">
+              The general assessment items will be available once configured.
+            </p>
+          </div>
           
           <div className="mt-4">
             <Label htmlFor="general-comments">Add comments for General section...</Label>
