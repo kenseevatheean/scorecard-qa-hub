@@ -61,6 +61,7 @@ export type Database = {
           employee_id: string
           id: string
           mandatory_score: number
+          outcome: string | null
           overall_score: number
           procedural_score: number
           scorecard_id: string
@@ -75,6 +76,7 @@ export type Database = {
           employee_id: string
           id?: string
           mandatory_score?: number
+          outcome?: string | null
           overall_score?: number
           procedural_score?: number
           scorecard_id: string
@@ -89,6 +91,7 @@ export type Database = {
           employee_id?: string
           id?: string
           mandatory_score?: number
+          outcome?: string | null
           overall_score?: number
           procedural_score?: number
           scorecard_id?: string
@@ -126,6 +129,33 @@ export type Database = {
           name?: string
           position?: string | null
           status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          department: string
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          id: string
+          name: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Relationships: []
@@ -216,7 +246,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "qa_officer" | "manager" | "employee" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -343,6 +373,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["qa_officer", "manager", "employee", "admin"],
+    },
   },
 } as const
