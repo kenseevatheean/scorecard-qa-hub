@@ -2,11 +2,11 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
-import LoginForm from '@/components/LoginForm';
 import Dashboard from '@/components/Dashboard';
 import Scorecard from '@/components/Scorecard';
 import ScorecardSelection from '@/components/ScorecardSelection';
 import Disputes from '@/components/Disputes';
+import AdminPanel from '@/components/AdminPanel';
 import { useState } from 'react';
 
 const Index = () => {
@@ -33,10 +33,6 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return <LoginForm />;
-  }
-
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
@@ -58,6 +54,8 @@ const Index = () => {
         return <Disputes />;
       case 'reports':
         return <Dashboard />; // Using Dashboard as placeholder for reports
+      case 'admin':
+        return <AdminPanel />;
       case 'settings':
         return <div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-600">Settings - Coming Soon</h2></div>;
       default:

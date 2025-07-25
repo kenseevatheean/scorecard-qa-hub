@@ -8,6 +8,7 @@ import {
   FileText, 
   MessageSquare, 
   Settings, 
+  Users,
   X 
 } from 'lucide-react';
 
@@ -22,11 +23,12 @@ const Navigation: React.FC<NavigationProps> = ({ isOpen, onClose, currentPage, s
   const { user } = useAuth();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['qa_officer', 'manager'] },
-    { id: 'scorecards', label: 'Scorecards', icon: FileText, roles: ['qa_officer', 'manager', 'employee'] },
-    { id: 'disputes', label: 'Disputes', icon: MessageSquare, roles: ['qa_officer', 'manager'] },
-    { id: 'reports', label: 'Reports', icon: BarChart3, roles: ['qa_officer', 'manager'] },
-    { id: 'settings', label: 'Settings', icon: Settings, roles: ['qa_officer'] },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, roles: ['qa_officer', 'manager', 'admin'] },
+    { id: 'scorecards', label: 'Scorecards', icon: FileText, roles: ['qa_officer', 'manager', 'employee', 'admin'] },
+    { id: 'disputes', label: 'Disputes', icon: MessageSquare, roles: ['qa_officer', 'manager', 'admin'] },
+    { id: 'reports', label: 'Reports', icon: BarChart3, roles: ['qa_officer', 'manager', 'admin'] },
+    { id: 'admin', label: 'User Management', icon: Users, roles: ['admin'] },
+    { id: 'settings', label: 'Settings', icon: Settings, roles: ['qa_officer', 'admin'] },
   ];
 
   const filteredItems = menuItems.filter(item => 
