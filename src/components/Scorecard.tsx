@@ -40,7 +40,10 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   const [selectedScorecardId, setSelectedScorecardId] = useState('');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [caseReference, setCaseReference] = useState('IVAT23456');
-  const [auditDate, setAuditDate] = useState('24/08/2025');
+  const [auditDate, setAuditDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+  });
   const [auditorName, setAuditorName] = useState('John Smith');
   const [generalComments, setGeneralComments] = useState('');
   const [employees, setEmployees] = useState<Array<{id: string, name: string, department: string}>>([]);
