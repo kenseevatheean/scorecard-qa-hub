@@ -38,13 +38,12 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
   
   // Initialize with preselected values or defaults
   const [selectedScorecardId, setSelectedScorecardId] = useState('');
-  const [employeeName, setEmployeeName] = useState(preSelectedEmployee || 'Jane Doe');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [caseReference, setCaseReference] = useState('IVAT23456');
   const [auditDate, setAuditDate] = useState('24/08/2025');
   const [auditorName, setAuditorName] = useState('John Smith');
   const [generalComments, setGeneralComments] = useState('');
-  const [employees, setEmployees] = useState<Array<{name: string, department: string}>>([]);
-  const [actualEmployeeDepartment, setActualEmployeeDepartment] = useState<string>('');
+  const [employees, setEmployees] = useState<Array<{id: string, name: string, department: string}>>([]);
   const [auditResultId, setAuditResultId] = useState<string | null>(null);
   const [auditStatus, setAuditStatus] = useState<'draft' | 'completed'>('draft');
   
@@ -101,7 +100,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
       try {
         const { data: employeeData, error } = await supabase
           .from('employees')
-          .select('name, department')
+          .select('id, name, department')
           .eq('status', 'active');
 
         if (error) {
@@ -112,10 +111,14 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         if (employeeData) {
           setEmployees(employeeData);
           
-          // Find the current employee's actual department
-          const currentEmployee = employeeData.find(emp => emp.name === employeeName);
-          if (currentEmployee) {
-            setActualEmployeeDepartment(currentEmployee.department);
+          // If preSelectedEmployee is provided, try to find matching employee
+          if (preSelectedEmployee && !selectedEmployeeId) {
+            const matchingEmployee = employeeData.find(emp => 
+              emp.name.toLowerCase() === preSelectedEmployee.toLowerCase()
+            );
+            if (matchingEmployee) {
+              setSelectedEmployeeId(matchingEmployee.id);
+            }
           }
         }
       } catch (error) {
@@ -124,7 +127,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     };
 
     fetchEmployees();
-  }, [employeeName]);
+  }, [preSelectedEmployee]);
 
   // Fetch scorecard items when a scorecard is selected
   useEffect(() => {
@@ -237,24 +240,17 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
 
   const handleSave = async () => {
     try {
-      // Find the employee ID
-      const { data: employeeData, error: employeeError } = await supabase
-        .from('employees')
-        .select('id')
-        .eq('name', employeeName)
-        .single();
-
-      if (employeeError || !employeeData) {
+      if (!selectedEmployeeId) {
         toast({
           title: "Error",
-          description: "Employee not found. Please check the employee name.",
+          description: "Please select an employee.",
           variant: "destructive"
         });
         return;
       }
 
       const auditData = {
-        employee_id: employeeData.id,
+        employee_id: selectedEmployeeId,
         auditor_name: auditorName,
         scorecard_id: selectedScorecardId,
         audit_date: auditDate,
@@ -398,13 +394,19 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="employee-name">Employee Name</Label>
-              <Input
-                id="employee-name"
-                value={employeeName}
-                onChange={(e) => setEmployeeName(e.target.value)}
-                disabled={!canEdit}
-              />
+              <Label htmlFor="employee-select">Employee Name</Label>
+              <Select value={selectedEmployeeId} onValueChange={setSelectedEmployeeId} disabled={!canEdit}>
+                <SelectTrigger id="employee-select" className="w-full">
+                  <SelectValue placeholder="Select an employee" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border shadow-lg z-50 max-h-60 overflow-y-auto">
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.name} - {employee.department}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="case-reference">Case Reference</Label>
@@ -439,7 +441,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
               <Label htmlFor="employee-department">Department</Label>
               <Input
                 id="employee-department"
-                value={actualEmployeeDepartment || ''}
+                value={employees.find(emp => emp.id === selectedEmployeeId)?.department || ''}
                 disabled={true}
                 className="bg-gray-50"
               />
