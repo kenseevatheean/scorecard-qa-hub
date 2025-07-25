@@ -72,6 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
+    console.log('Login attempt for username:', username);
+    
     // Find user by name (case-insensitive)
     const { data: profile } = await supabase
       .from('profiles')
@@ -79,18 +81,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .ilike('name', username)
       .maybeSingle();
     
+    console.log('Profile found:', profile);
+    
     if (!profile) {
+      console.log('No profile found for username:', username);
       return { error: { message: 'User not found' } };
     }
 
     // Convert username to email format (matching our user creation pattern)
-    const email = profile.name.toLowerCase().replace(' ', '.') + '@company.com';
+    const email = profile.name.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+    console.log('Attempting login with email:', email);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
     
+    console.log('Auth error:', error);
     return { error };
   };
 
