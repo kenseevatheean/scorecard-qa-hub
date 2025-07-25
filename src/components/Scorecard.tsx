@@ -287,7 +287,7 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         setAuditResultId(resultId);
       }
 
-      // Save individual item scores
+      // Save individual item scores using upsert
       const itemScoresData = scorecardItems
         .filter(item => item.score && item.score !== null)
         .map(item => ({
@@ -297,16 +297,12 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         }));
 
       if (itemScoresData.length > 0) {
-        // Delete existing scores for this audit
-        await supabase
-          .from('audit_item_scores')
-          .delete()
-          .eq('audit_result_id', resultId);
-
-        // Insert new scores
+        // Use upsert to handle duplicates
         const { error: scoresError } = await supabase
           .from('audit_item_scores')
-          .insert(itemScoresData);
+          .upsert(itemScoresData, {
+            onConflict: 'audit_result_id,scorecard_item_id'
+          });
 
         if (scoresError) throw scoresError;
       }
