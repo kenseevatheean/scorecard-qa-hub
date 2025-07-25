@@ -72,20 +72,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
-    // Find user by name first
+    // Find user by name (case-insensitive)
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id')
-      .eq('name', username)
+      .select('id, name')
+      .ilike('name', username)
       .maybeSingle();
     
     if (!profile) {
       return { error: { message: 'User not found' } };
     }
 
-    // For now, use a workaround since we can't query auth.users directly
-    // We'll construct the email based on the username pattern
-    const email = username.toLowerCase().replace(' ', '.') + '@company.com';
+    // Convert username to email format (matching our user creation pattern)
+    const email = profile.name.toLowerCase().replace(' ', '.') + '@company.com';
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
