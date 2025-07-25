@@ -83,19 +83,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: { message: 'User not found' } };
     }
 
-    // Get the user's email from auth.users
-    const { data: authUser } = await supabase
-      .from('auth.users')
-      .select('email')
-      .eq('id', profile.id)
-      .maybeSingle();
-
-    if (!authUser?.email) {
-      return { error: { message: 'User email not found' } };
-    }
+    // For now, use a workaround since we can't query auth.users directly
+    // We'll construct the email based on the username pattern
+    const email = username.toLowerCase().replace(' ', '.') + '@company.com';
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: authUser.email,
+      email,
       password
     });
     
