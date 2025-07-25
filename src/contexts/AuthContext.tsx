@@ -16,7 +16,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  login: (email: string, password: string) => Promise<{ error: any }>;
+  login: (username: string, password: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
   isLoading: boolean;
 }
@@ -71,9 +71,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
+    // Find user by name first
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('name', username)
+      .maybeSingle();
+    
+    if (!profile) {
+      return { error: { message: 'User not found' } };
+    }
+
+    // Get the user's email from auth.users
+    const { data: authUser } = await supabase
+      .from('auth.users')
+      .select('email')
+      .eq('id', profile.id)
+      .maybeSingle();
+
+    if (!authUser?.email) {
+      return { error: { message: 'User email not found' } };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: authUser.email,
       password
     });
     
