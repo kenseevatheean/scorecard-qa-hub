@@ -72,32 +72,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
-    console.log('Login attempt for username:', username);
+    // Try direct login with these known emails first
+    const knownUsers = {
+      'admin user': 'admin.user@company.com',
+      'bhewa yakshinee': 'bhewa.yakshinee@company.com',
+      'john manager': 'john.manager@company.com',
+      'sarah qa': 'sarah.qa@company.com',
+      'mike employee': 'mike.employee@company.com'
+    };
     
-    // Find user by name (case-insensitive)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, name')
-      .ilike('name', username)
-      .maybeSingle();
+    const email = knownUsers[username.toLowerCase()] || username.toLowerCase().replace(/\s+/g, '.') + '@company.com';
     
-    console.log('Profile found:', profile);
-    
-    if (!profile) {
-      console.log('No profile found for username:', username);
-      return { error: { message: 'User not found' } };
-    }
-
-    // Convert username to email format (matching our user creation pattern)
-    const email = profile.name.toLowerCase().replace(/\s+/g, '.') + '@company.com';
-    console.log('Attempting login with email:', email);
-
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
     
-    console.log('Auth error:', error);
     return { error };
   };
 
