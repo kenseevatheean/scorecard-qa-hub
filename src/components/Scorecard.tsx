@@ -225,8 +225,11 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
     const mandatoryScore = mandatoryScored.length > 0 ? (mandatoryPassed / mandatoryScored.length) * 100 : 0;
     const proceduralScore = proceduralScored.length > 0 ? (proceduralPassed / proceduralScored.length) * 100 : 0;
     
-    // Weighted scoring: 70% mandatory, 30% procedural
-    const overallScore = (mandatoryScore * 0.7) + (proceduralScore * 0.3);
+    // If no procedural items exist, overall score equals mandatory score
+    // Otherwise, use weighted scoring: 70% mandatory, 30% procedural
+    const overallScore = proceduralItems.length === 0 
+      ? mandatoryScore 
+      : (mandatoryScore * 0.7) + (proceduralScore * 0.3);
     
     return {
       mandatoryScore: Math.round(mandatoryScore * 100) / 100,
