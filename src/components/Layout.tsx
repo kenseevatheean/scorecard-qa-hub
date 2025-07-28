@@ -15,7 +15,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, currentPage, setCurrentPage }) => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getRoleBadgeColor = (role: string) => {
@@ -79,7 +79,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, setCurrentPage }
               <Button
                 variant="outline"
                 size="sm"
-                onClick={logout}
+                onClick={signOut}
                 className="flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
