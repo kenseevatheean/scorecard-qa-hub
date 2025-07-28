@@ -32,15 +32,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         
         if (session?.user) {
           // Fetch user profile from our profiles table
-          const { data: profile } = await supabase
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
+            
+          console.log('Profile lookup:', profile, error);
             
           if (profile) {
             setUser({
@@ -72,22 +75,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
-    // Try direct login with these known emails first
-    const knownUsers = {
-      'admin user': 'admin.user@company.com',
-      'bhewa yakshinee': 'bhewa.yakshinee@company.com',
-      'john manager': 'john.manager@company.com',
-      'sarah qa': 'sarah.qa@company.com',
-      'mike employee': 'mike.employee@company.com'
-    };
+    console.log('Login attempt for username:', username);
     
-    const email = knownUsers[username.toLowerCase()] || username.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+    // Check if we have profiles in the database that match this username
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .ilike('name', username);
+      
+    console.log('Available profiles:', profiles);
+    
+    if (!profiles || profiles.length === 0) {
+      console.log('No profiles found for username:', username);
+      return { error: { message: 'User not found' } };
+    }
+    
+    // Get the first matching profile
+    const profile = profiles[0];
+    
+    // Convert username to email format
+    const email = profile.name.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+    console.log('Attempting login with email:', email);
     
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
     
+    console.log('Auth result:', error);
     return { error };
   };
 
