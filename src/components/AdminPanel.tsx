@@ -8,10 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { UserPlus, AlertCircle, CheckCircle } from "lucide-react"
 
-// Create admin client with service role key (you'll need to provide the service role key)
+// Create admin client with service role key
 const supabaseAdmin = createClient(
   "https://goxplrcpxejwgjuvphxo.supabase.co",
-  "SERVICE_ROLE_KEY_NEEDED" // Replace with actual service role key
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveHBscmNweGVqd2dqdXZwaHhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzI1ODM1OCwiZXhwIjoyMDY4ODM0MzU4fQ.2F13-lxML-FmmQlMlN4bvEWwsu-iB4q8ra4C4uYa6A0"
 )
 
 export default function AdminPanel() {
