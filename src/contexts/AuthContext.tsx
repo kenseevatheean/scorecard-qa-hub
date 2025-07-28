@@ -77,24 +77,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     console.log('Login attempt for username:', username);
     
-    // Check if we have profiles in the database that match this username
-    const { data: profiles, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .ilike('name', username);
-      
-    console.log('Available profiles:', profiles);
+    // Map usernames to the correct email format based on existing auth users
+    const emailMap: Record<string, string> = {
+      'admin user': 'admin@company.com',
+      'john manager': 'john.manager@company.com', 
+      'sarah qa': 'sarah.qa@company.com',
+      'mike employee': 'mike.employee@company.com',
+      'bhewa yakshinee': 'bhewa.yakshinee@company.com'
+    };
     
-    if (!profiles || profiles.length === 0) {
-      console.log('No profiles found for username:', username);
+    const email = emailMap[username.toLowerCase()];
+    
+    if (!email) {
+      console.log('No email mapping found for username:', username);
       return { error: { message: 'User not found' } };
     }
     
-    // Get the first matching profile
-    const profile = profiles[0];
-    
-    // Convert username to email format
-    const email = profile.name.toLowerCase().replace(/\s+/g, '.') + '@company.com';
     console.log('Attempting login with email:', email);
     
     const { error } = await supabase.auth.signInWithPassword({
