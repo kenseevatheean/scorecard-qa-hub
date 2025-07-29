@@ -264,7 +264,10 @@ const Scorecard: React.FC<ScorecardProps> = ({ preSelectedDepartment, preSelecte
         mandatory_score: scores.mandatoryScore,
         procedural_score: scores.proceduralScore,
         status: auditStatus,
-        auditor_comments: `Summary: ${summaryQuery}\n\nPositives: ${positives}\n\nNegatives: ${negatives}\n\nRemarks: ${remarks}`
+        summary_query: summaryQuery,
+        positives: positives,
+        negatives: negatives,
+        remarks: remarks`
       };
 
       let resultId = auditResultId;
