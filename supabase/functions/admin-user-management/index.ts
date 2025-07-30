@@ -60,7 +60,7 @@ serve(async (req) => {
     const method = req.method;
 
     // Single user creation
-    if (pathname === '/create-user' && method === 'POST') {
+    if (pathname.endsWith('/create-user') && method === 'POST') {
       const { email, password, fullName, role, department }: UserCreationRequest = await req.json();
 
       console.log('Creating user:', { email, fullName, role, department });
@@ -94,7 +94,7 @@ serve(async (req) => {
     }
 
     // Bulk user creation
-    if (pathname === '/create-users-bulk' && method === 'POST') {
+    if (pathname.endsWith('/create-users-bulk') && method === 'POST') {
       const { users }: BulkUserCreationRequest = await req.json();
 
       console.log('Creating bulk users:', users.length);
