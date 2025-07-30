@@ -23,7 +23,7 @@ export default function AdminPanel() {
   const [department, setDepartment] = useState('General')
   const [employeeNumber, setEmployeeNumber] = useState('')
   const [position, setPosition] = useState('Team Member')
-  const [reportingManagerId, setReportingManagerId] = useState('')
+  const [reportingManagerId, setReportingManagerId] = useState('none')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   
@@ -85,7 +85,7 @@ export default function AdminPanel() {
           department: department,
           employee_number: employeeNumber || undefined,
           position: position,
-          reporting_manager_id: reportingManagerId || undefined,
+          reporting_manager_id: reportingManagerId && reportingManagerId !== 'none' ? reportingManagerId : undefined,
           status: 'active'
         })
       
@@ -107,7 +107,7 @@ export default function AdminPanel() {
       setDepartment('General')
       setEmployeeNumber('')
       setPosition('Team Member')
-      setReportingManagerId('')
+      setReportingManagerId('none')
       
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to create user' })
@@ -251,7 +251,7 @@ export default function AdminPanel() {
                       <SelectValue placeholder={loadingManagers ? "Loading..." : "Select manager (optional)"} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No reporting manager</SelectItem>
+                      <SelectItem value="none">No reporting manager</SelectItem>
                       {managers.map((manager) => (
                         <SelectItem key={manager.id} value={manager.id}>
                           {manager.name} - {manager.department}
