@@ -57,79 +57,202 @@ export type Database = {
           audit_date: string
           auditor_comments: string | null
           auditor_name: string
+          case_reference: string | null
           created_at: string
           employee_id: string
           id: string
           mandatory_score: number
+          negatives: string | null
           outcome: string | null
           overall_score: number
+          positives: string | null
           procedural_score: number
+          remarks: string | null
           scorecard_id: string
           status: string
+          summary_query: string | null
           updated_at: string
         }
         Insert: {
           audit_date?: string
           auditor_comments?: string | null
           auditor_name: string
+          case_reference?: string | null
           created_at?: string
           employee_id: string
           id?: string
           mandatory_score?: number
+          negatives?: string | null
           outcome?: string | null
           overall_score?: number
+          positives?: string | null
           procedural_score?: number
+          remarks?: string | null
           scorecard_id: string
           status?: string
+          summary_query?: string | null
           updated_at?: string
         }
         Update: {
           audit_date?: string
           auditor_comments?: string | null
           auditor_name?: string
+          case_reference?: string | null
           created_at?: string
           employee_id?: string
           id?: string
           mandatory_score?: number
+          negatives?: string | null
           outcome?: string | null
           overall_score?: number
+          positives?: string | null
           procedural_score?: number
+          remarks?: string | null
           scorecard_id?: string
           status?: string
+          summary_query?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      audit_results_backup: {
+        Row: {
+          audit_date: string | null
+          auditor_comments: string | null
+          auditor_name: string | null
+          created_at: string | null
+          employee_id: string | null
+          id: string | null
+          mandatory_score: number | null
+          outcome: string | null
+          overall_score: number | null
+          procedural_score: number | null
+          scorecard_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          audit_date?: string | null
+          auditor_comments?: string | null
+          auditor_name?: string | null
+          created_at?: string | null
+          employee_id?: string | null
+          id?: string | null
+          mandatory_score?: number | null
+          outcome?: string | null
+          overall_score?: number | null
+          procedural_score?: number | null
+          scorecard_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          audit_date?: string | null
+          auditor_comments?: string | null
+          auditor_name?: string | null
+          created_at?: string | null
+          employee_id?: string | null
+          id?: string | null
+          mandatory_score?: number | null
+          outcome?: string | null
+          overall_score?: number | null
+          procedural_score?: number | null
+          scorecard_id?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       employees: {
         Row: {
           created_at: string
+          created_by: string | null
           department: string
+          email: string | null
+          employee_number: string | null
           hire_date: string | null
           id: string
           name: string
           position: string | null
+          reporting_manager_id: string | null
           status: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           department: string
+          email?: string | null
+          employee_number?: string | null
           hire_date?: string | null
           id?: string
           name: string
           position?: string | null
+          reporting_manager_id?: string | null
           status?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           department?: string
+          email?: string | null
+          employee_number?: string | null
           hire_date?: string | null
           id?: string
           name?: string
           position?: string | null
+          reporting_manager_id?: string | null
           status?: string | null
           updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_reporting_manager_id_fkey"
+            columns: ["reporting_manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees_backup: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          hire_date: string | null
+          id: string | null
+          name: string | null
+          position: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          hire_date?: string | null
+          id?: string | null
+          name?: string | null
+          position?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          hire_date?: string | null
+          id?: string | null
+          name?: string | null
+          position?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -157,6 +280,63 @@ export type Database = {
           name?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles_backup: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          id: string | null
+          name: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          id?: string | null
+          name?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          id?: string | null
+          name?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      role_audit_log: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          id: string
+          new_role: string
+          old_role: string | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          id?: string
+          new_role: string
+          old_role?: string | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          id?: string
+          new_role?: string
+          old_role?: string | null
+          reason?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -243,7 +423,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_edit_scorecards: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       user_role: "qa_officer" | "manager" | "employee" | "admin"

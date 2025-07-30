@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,12 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { UserPlus, AlertCircle, CheckCircle, Upload, Download, Users } from "lucide-react"
 import Papa from 'papaparse'
-
-// Create admin client with service role key
-const supabaseAdmin = createClient(
-  "https://goxplrcpxejwgjuvphxo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdveHBscmNweGVqd2dqdXZwaHhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzI1ODM1OCwiZXhwIjoyMDY4ODM0MzU4fQ.2F13-lxML-FmmQlMlN4bvEWwsu-iB4q8ra4C4uYa6A0"
-)
+import { supabase } from "@/integrations/supabase/client"
 
 export default function AdminPanel() {
   // Single user creation states
@@ -111,41 +105,34 @@ mike.johnson@company.com,Mike Johnson,temp789,manager,Operations`
     setBulkProgress(0)
     setBulkResults({ success: 0, failed: 0, errors: [] })
 
-    let successCount = 0
-    let failedCount = 0
-    const errors: string[] = []
+    try {
+      const users = csvData.map(user => ({
+        email: user.email.trim(),
+        password: user.password,
+        fullName: user.full_name.trim(),
+        role: user.role,
+        department: user.department
+      }))
 
-    for (let i = 0; i < csvData.length; i++) {
-      const user = csvData[i]
-      
-      try {
-        const { error } = await supabaseAdmin.auth.admin.createUser({
-          email: user.email.trim(),
-          password: user.password,
-          email_confirm: true,
-          user_metadata: {
-            full_name: user.full_name.trim(),
-            role: user.role,
-            department: user.department
-          }
-        })
-        
-        if (error) throw error
-        successCount++
-      } catch (error: any) {
-        failedCount++
-        errors.push(`Row ${user.rowIndex} (${user.email}): ${error.message}`)
-      }
+      const { data, error } = await supabase.functions.invoke('admin-user-management/create-users-bulk', {
+        body: { users }
+      })
 
-      setBulkProgress(((i + 1) / csvData.length) * 100)
-      setBulkResults({ success: successCount, failed: failedCount, errors })
+      if (error) throw error
+
+      const results = data.results
+      setBulkResults(results)
+      setBulkProgress(100)
+      setMessage({ 
+        type: results.success > 0 ? 'success' : 'error', 
+        text: data.message
+      })
+    } catch (error: any) {
+      setBulkResults({ success: 0, failed: csvData.length, errors: [error.message] })
+      setMessage({ type: 'error', text: error.message || 'Failed to create users' })
     }
 
     setBulkLoading(false)
-    setMessage({ 
-      type: successCount > 0 ? 'success' : 'error', 
-      text: `Bulk creation complete. ${successCount} successful, ${failedCount} failed.` 
-    })
   }
 
   const resetBulkUpload = () => {
@@ -170,12 +157,11 @@ mike.johnson@company.com,Mike Johnson,temp789,manager,Operations`
     setMessage(null)
 
     try {
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true, // Skip email confirmation
-        user_metadata: {
-          full_name: fullName,
+      const { data, error } = await supabase.functions.invoke('admin-user-management/create-user', {
+        body: {
+          email,
+          password,
+          fullName,
           role,
           department
         }
@@ -183,7 +169,7 @@ mike.johnson@company.com,Mike Johnson,temp789,manager,Operations`
       
       if (error) throw error
       
-      setMessage({ type: 'success', text: `User ${email} created successfully!` })
+      setMessage({ type: 'success', text: data.message })
       
       // Reset form
       setEmail('')
