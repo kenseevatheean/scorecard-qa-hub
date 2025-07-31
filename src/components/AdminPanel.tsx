@@ -5,13 +5,24 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { UserPlus, AlertCircle, CheckCircle, Users, User } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { UserPlus, AlertCircle, CheckCircle, Users, User, UserX, UserCheck } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 
 interface Manager {
   id: string;
   name: string;
   department: string;
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  status: string;
+  created_at: string;
 }
 
 export default function AdminPanel() {
@@ -38,10 +49,16 @@ export default function AdminPanel() {
   const [loadingDepartments, setLoadingDepartments] = useState(false)
   const [loadingManagers, setLoadingManagers] = useState(false)
 
+  // User management states
+  const [users, setUsers] = useState<UserProfile[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  const [userManagementMessage, setUserManagementMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
   // Load departments and managers
   useEffect(() => {
     loadDepartments()
     loadManagers()
+    loadUsers()
   }, [])
 
   const loadDepartments = async () => {
@@ -154,6 +171,47 @@ export default function AdminPanel() {
     }
     
     setEmployeeLoading(false)
+  }
+
+  const loadUsers = async () => {
+    setLoadingUsers(true)
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, role, department, status, created_at')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setUsers(data || [])
+    } catch (error: any) {
+      console.error('Error loading users:', error)
+    }
+    setLoadingUsers(false)
+  }
+
+  const toggleUserStatus = async (userId: string, currentStatus: string) => {
+    setUserManagementMessage(null)
+    try {
+      const newStatus = currentStatus === 'active' ? 'disabled' : 'active'
+      
+      const { error } = await supabase.rpc('manage_user_status', {
+        target_user_id: userId,
+        new_status: newStatus
+      })
+
+      if (error) throw error
+
+      setUserManagementMessage({ 
+        type: 'success', 
+        text: `User ${newStatus === 'active' ? 'enabled' : 'disabled'} successfully!` 
+      })
+      
+      // Reload users
+      loadUsers()
+      
+    } catch (error: any) {
+      setUserManagementMessage({ type: 'error', text: error.message || 'Failed to update user status' })
+    }
   }
 
   return (
@@ -369,6 +427,90 @@ export default function AdminPanel() {
             >
               {employeeLoading ? 'Creating Employee...' : 'Create Employee Record'}
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* User Management Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Manage Users
+            </CardTitle>
+            <CardDescription>
+              View and manage existing user accounts
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            {userManagementMessage && (
+              <Alert className={userManagementMessage.type === 'error' ? 'border-destructive/50 bg-destructive/10' : 'border-green-500/50 bg-green-500/10'}>
+                {userManagementMessage.type === 'error' ? (
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                ) : (
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                )}
+                <AlertDescription className={userManagementMessage.type === 'error' ? 'text-destructive' : 'text-green-700'}>
+                  {userManagementMessage.text}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {loadingUsers ? (
+              <div className="text-center py-4">Loading users...</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {user.role === 'qa_officer' ? 'QA Officer' : 
+                           user.role === 'manager' ? 'Manager' :
+                           user.role === 'admin' ? 'Admin' : 'Employee'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{user.department}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
+                          {user.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleUserStatus(user.id, user.status)}
+                          className="flex items-center gap-2"
+                        >
+                          {user.status === 'active' ? (
+                            <>
+                              <UserX className="h-4 w-4" />
+                              Disable
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="h-4 w-4" />
+                              Enable
+                            </>
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
 
