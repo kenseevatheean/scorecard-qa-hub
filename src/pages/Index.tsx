@@ -66,16 +66,6 @@ const Index = () => {
 
   return (
     <Layout currentPage={currentPage} setCurrentPage={setCurrentPage}>
-      {user?.role === 'admin' && (
-        <div className="fixed top-4 right-4 z-50">
-          <Link 
-            to="/admin" 
-            className="bg-destructive text-destructive-foreground px-4 py-2 rounded hover:bg-destructive/90 shadow-lg"
-          >
-            Admin Panel
-          </Link>
-        </div>
-      )}
       {renderContent()}
     </Layout>
   );
