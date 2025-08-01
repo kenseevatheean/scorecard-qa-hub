@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { UserPlus, AlertCircle, CheckCircle, Users, User, UserX, UserCheck } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
+import CreateUsersScript from "./CreateUsersScript"
 
 interface Manager {
   id: string;
@@ -432,8 +433,8 @@ export default function AdminPanel() {
           </CardContent>
         </Card>
 
-
-        {/* User Management Section */}
+        {/* Required Users Creation */}
+        <CreateUsersScript />
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
