@@ -65,29 +65,43 @@ serve(async (req) => {
 
       console.log('Creating user:', { email, fullName, role, department });
 
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      // Create user directly and then manually create profile
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
-        email_confirm: true,
-        user_metadata: {
-          name: fullName,
-          role,
-          department
-        }
+        email_confirm: true
       });
 
-      if (error) {
-        console.error('User creation error:', error);
-        throw error;
+      if (authError) {
+        console.error('Auth user creation error:', authError);
+        throw authError;
       }
 
-      console.log('User created successfully:', data.user?.email);
+      // Manually insert into profiles table
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          name: fullName,
+          role: role as any,
+          department: department,
+          status: 'active'
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Clean up the auth user if profile creation fails
+        await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+        throw profileError;
+      }
+
+      console.log('User created successfully:', authData.user?.email);
 
       return new Response(
         JSON.stringify({ 
           success: true, 
           message: `User ${email} created successfully`,
-          user: data.user 
+          user: authData.user 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
