@@ -54,9 +54,6 @@ export default function AdminPanel() {
   const [loadingUsers, setLoadingUsers] = useState(false)
   const [userManagementMessage, setUserManagementMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   
-  // Bulk user creation states
-  const [bulkCreating, setBulkCreating] = useState(false)
-  const [bulkMessage, setBulkMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   // Load departments and managers
   useEffect(() => {
@@ -218,57 +215,6 @@ export default function AdminPanel() {
     }
   }
 
-  const createBulkUsers = async () => {
-    setBulkCreating(true)
-    setBulkMessage(null)
-
-    const usersToCreate = [
-      { fullName: 'Amee Mirjane', email: 'Amee.Mirjane@creditfix.co.uk', role: 'manager', department: 'Financial Reviews' },
-      { fullName: 'Atish Aubeeluck', email: 'Atish.Aubeeluck@creditfix.co.uk', role: 'manager', department: 'Customer Support' },
-      { fullName: 'Yuddish Raghoonundun', email: 'Yuddish.Raghoonundun@creditfix.co.uk', role: 'manager', department: 'General' },
-      { fullName: 'Kavish Sookaloo', email: 'kavish.sookaloo@carringtondean.com', role: 'manager', department: 'Trust Deed' },
-      { fullName: 'Naviyam Mamoodee', email: 'naviyam.mamoodee@ebenegate.co.uk', role: 'manager', department: 'Retention' },
-      { fullName: 'Yashiin Bundhoo', email: 'Yashiin.Bundhoo@ebenegate.co.uk', role: 'manager', department: 'Supervision' },
-      { fullName: 'Soraj Urjoon', email: 'soraj.urjoon@creditfix.co.uk', role: 'manager', department: 'Customer Support' },
-      { fullName: 'Sandy Permall', email: 'Sandy.Permall@creditfix.co.uk', role: 'manager', department: 'Variation' },
-      { fullName: 'Ashley Luckeenarain', email: 'ashley.luckeenarain@creditfix.co.uk', role: 'employee', department: 'General' },
-      { fullName: 'Nasima Joomun', email: 'nasima.joomun@creditfix.co.uk', role: 'manager', department: 'Supervision' },
-      { fullName: 'Abdur Hosenally', email: 'Abdur.Hosenally@creditfix.co.uk', role: 'manager', department: 'Creditor Services' },
-      { fullName: 'Ashwanee Kurnauth', email: 'ashwanee.kurnauth@creditfix.co.uk', role: 'manager', department: 'Creditor Services' },
-      { fullName: 'Heydar LALLMAHOMED', email: 'heydar.lallmahomed@creditfix.co.uk', role: 'manager', department: 'Closures' },
-      { fullName: 'Zakkiya Jearuth', email: 'zakkiya.jearuth@creditfix.co.uk', role: 'admin', department: 'Administration' },
-      { fullName: 'Yakshineebye Bhewa', email: 'yakshineebye.bhewa@creditfix.co.uk', role: 'qa_officer', department: 'Quality Assurance' },
-      { fullName: 'Raksha Rambaruth-Emrith', email: 'Raksha.RAMBARUTH@creditfix.co.uk', role: 'qa_officer', department: 'Quality Assurance' },
-      { fullName: 'Dooshan Hoollah', email: 'dooshan.hoollah@creditfix.co.uk', role: 'qa_officer', department: 'Quality Assurance' }
-    ]
-
-    try {
-      // Generate temporary passwords and format for bulk creation
-      const users = usersToCreate.map(user => ({
-        ...user,
-        password: 'TempPass123!' // Standard temporary password
-      }))
-
-      const { data, error } = await supabase.functions.invoke('admin-user-management/create-users-bulk', {
-        body: { users }
-      })
-
-      if (error) throw error
-
-      setBulkMessage({ 
-        type: 'success', 
-        text: `Bulk creation complete! ${data.results.success} users created successfully, ${data.results.failed} failed.`
-      })
-
-      // Reload users list
-      loadUsers()
-
-    } catch (error: any) {
-      setBulkMessage({ type: 'error', text: error.message || 'Failed to create bulk users' })
-    }
-
-    setBulkCreating(false)
-  }
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -486,54 +432,6 @@ export default function AdminPanel() {
           </CardContent>
         </Card>
 
-        {/* Bulk User Creation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5" />
-              Bulk User Creation
-            </CardTitle>
-            <CardDescription>
-              Add all new team members with predefined roles and departments
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            {bulkMessage && (
-              <Alert className={bulkMessage.type === 'error' ? 'border-destructive/50 bg-destructive/10' : 'border-green-500/50 bg-green-500/10'}>
-                {bulkMessage.type === 'error' ? (
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                ) : (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                )}
-                <AlertDescription className={bulkMessage.type === 'error' ? 'text-destructive' : 'text-green-700'}>
-                  {bulkMessage.text}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">
-                This will create 17 new user accounts with temporary password "TempPass123!":
-              </p>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                <li>• 1 Admin (Quality Assurance)</li>
-                <li>• 12 Managers (Customer Service)</li>
-                <li>• 3 QA Officers (Quality Assurance)</li>
-                <li>• 1 Employee (Customer Service)</li>
-              </ul>
-            </div>
-
-            <Button 
-              onClick={createBulkUsers} 
-              disabled={bulkCreating}
-              className="w-full"
-              variant="default"
-            >
-              {bulkCreating ? 'Creating Users...' : 'Create All 17 Users'}
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* User Management Section */}
         <Card>
