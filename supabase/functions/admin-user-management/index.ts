@@ -70,7 +70,7 @@ serve(async (req) => {
         password,
         email_confirm: true,
         user_metadata: {
-          full_name: fullName,
+          name: fullName,
           role,
           department
         }
@@ -113,7 +113,7 @@ serve(async (req) => {
             password: user.password,
             email_confirm: true,
             user_metadata: {
-              full_name: user.fullName,
+              name: user.fullName,
               role: user.role,
               department: user.department
             }
