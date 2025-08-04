@@ -286,33 +286,6 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles_backup: {
-        Row: {
-          created_at: string | null
-          department: string | null
-          id: string | null
-          name: string | null
-          role: Database["public"]["Enums"]["user_role"] | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          department?: string | null
-          id?: string | null
-          name?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          department?: string | null
-          id?: string | null
-          name?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       role_audit_log: {
         Row: {
           changed_at: string
@@ -433,6 +406,10 @@ export type Database = {
       get_user_role: {
         Args: { user_id: string }
         Returns: string
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       manage_user_status: {
         Args: { target_user_id: string; new_status: string }
